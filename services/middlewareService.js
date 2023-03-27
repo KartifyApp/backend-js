@@ -7,10 +7,9 @@ export class MiddlewareService {
     static authorize = asyncHandler(async (req, res, next) => {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
-                token = req.headers.authorization.split(' ')[1]
-                const decoded = TokenService.decodeToken(token)
+                const decoded = TokenService.decodeToken(req.headers.authorization.split(' ')[1])
 
-                req.user = await UserService.getUserById(decoded.id)
+                req.user = await UserService.getUserById(decoded.userId)
                 next()
             } catch (error) {
                 console.error(error)
@@ -24,7 +23,7 @@ export class MiddlewareService {
     })
 
     static adminUser = asyncHandler(async (req, res, next) => {
-        if (req.user && req.userType === UserType.ADMIN) {
+        if (req.user && req.user.userType === UserType.ADMIN) {
             next()
         } else {
             res.status(StatusCode.UNAUTHORIZED)
@@ -33,7 +32,7 @@ export class MiddlewareService {
     })
 
     static providerUser = asyncHandler(async (req, res, next) => {
-        if (req.user && req.userType === UserType.PROVIDER) {
+        if (req.user && req.user.userType === UserType.PROVIDER) {
             next()
         } else {
             res.status(StatusCode.UNAUTHORIZED)
@@ -42,7 +41,7 @@ export class MiddlewareService {
     })
 
     static consumerUser = asyncHandler(async (req, res, next) => {
-        if (req.user && req.userType === UserType.CONSUMER) {
+        if (req.user && req.user.userType === UserType.CONSUMER) {
             next()
         } else {
             res.status(StatusCode.UNAUTHORIZED)
@@ -51,7 +50,7 @@ export class MiddlewareService {
     })
 
     static deliveryUser = asyncHandler(async (req, res, next) => {
-        if (req.user && req.userType === UserType.DELIVERY) {
+        if (req.user && req.user.userType === UserType.DELIVERY) {
             next()
         } else {
             res.status(StatusCode.UNAUTHORIZED)

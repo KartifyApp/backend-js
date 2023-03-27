@@ -1,22 +1,24 @@
 import expressAsyncHandler from 'express-async-handler'
 
-import { StatusCode } from '../models/enumConstants.js'
+import { StatusCode, UserType } from '../models/enumConstants.js'
 import { TokenService } from '../services/tokenService.js'
 import { UserService } from '../services/userService.js'
 import { UtilityService } from '../services/utilityService.js'
 
 // @desc    Register User
-// @route   POST /api/users/
+// @route   POST /api/user/
 // @access  Public
 export const registerUser = expressAsyncHandler(async (req, res) => {
-    var userData = UtilityService.getObject(['name', 'email', 'username', 'password', 'userType'], req.body)
+    var userData = UtilityService.getValues(
+        ['name', 'email', 'username', 'password'],
+        [
+            ['address', {}],
+            ['userType', UserType.CONSUMER]
+        ],
+        req.body
+    )
     if (!userData) {
         throw Error(`Fill necessary fields to register.`)
-    }
-    if (req.body.address) {
-        userData.address = req.body.address
-    } else {
-        userData.address = {}
     }
     var user = await UserService.getUserByUsername(userData.username)
     if (user) {
@@ -28,8 +30,11 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
     res.status(StatusCode.SUCCESSFUL).json(user)
 })
 
+// @desc    Login User
+// @route   POST /api/user/login
+// @access  Public
 export const loginUser = expressAsyncHandler(async (req, res) => {
-    var userData = UtilityService.getObject(['username', 'password'], req.body)
+    var userData = UtilityService.getValues(['username', 'password'], [], req.body)
     if (!userData) {
         throw Error(`Provide username and password.`)
     }
