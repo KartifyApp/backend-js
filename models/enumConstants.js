@@ -1,5 +1,6 @@
 export const StatusCode = Object.freeze({
-    SUCCESSFUL: 200
+    SUCCESSFUL: 200,
+    UNAUTHORIZED: 401
 })
 
 export const UserType = Object.freeze({

@@ -35,4 +35,12 @@ export class UserService {
             throw Error(`Error creating user with username ${user.username}.`)
         }
     }
+
+    static async checkPassword(username, password) {
+        const user = await UserService.getUserByUsername(username)
+        if (!(await bcrypt.compare(password, user.password))) {
+            throw Error(`Invalid password for username ${username}`)
+        }
+        return user
+    }
 }

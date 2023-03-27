@@ -25,8 +25,22 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
     await UserService.createUser(userData)
     user = await UserService.getUserByUsername(userData.username)
     delete user.password
+    res.status(StatusCode.SUCCESSFUL).json(user)
+})
+
+export const loginUser = expressAsyncHandler(async (req, res) => {
+    var userData = UtilityService.getObject(['username', 'password'], req.body)
+    if (!userData) {
+        throw Error(`Provide username and password.`)
+    }
+    var user = await UserService.checkPassword(userData.username, userData.password)
+    delete user.password
     res.status(StatusCode.SUCCESSFUL).json({
         ...user,
         token: TokenService.generateToken(user.userId)
     })
 })
+
+// export const logout = expressAsyncHandler(async(req, res) => {
+//     TokenService.destroyToken()
+// })

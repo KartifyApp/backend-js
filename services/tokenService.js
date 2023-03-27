@@ -12,4 +12,8 @@ export class TokenService {
     static decodeToken(token) {
         return jwt.verify(token, JWT_SECRET)
     }
+
+    static destroyToken(token) {
+        jwt.destroy(token)
+    }
 }
