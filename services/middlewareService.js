@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler'
-import { JWT_SECRET } from '../constants.js'
+import { TokenService } from './tokenService.js'
 import { UserService } from './userService.js'
 
 export class MiddlewareService {
@@ -7,7 +7,7 @@ export class MiddlewareService {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
                 token = req.headers.authorization.split(' ')[1]
-                const decoded = jwt.verify(token, JWT_SECRET)
+                const decoded = TokenService.decodeToken(token)
 
                 req.user = await UserService.getUserById(decoded.id)
                 next()

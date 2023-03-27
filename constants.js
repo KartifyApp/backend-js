@@ -10,3 +10,5 @@ export const DB_PASSWORD = process.env.DB_PASSWORD
 
 export const SERVER_PORT = process.env.SERVER_PORT || 5000
 export const JWT_SECRET = process.env.JWT_SECRET
+export const JWT_EXPIRE_TIME = '30d'
+export const SALT_ROUNDS = 10

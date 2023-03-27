@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
+
 import { SERVER_PORT } from './constants.js'
+import userRoutes from './routes/userRoutes.js'
 
 const app = express()
 
@@ -12,6 +14,8 @@ app.use(
         credentials: true
     })
 )
+
+app.use('/api/user', userRoutes)
 
 const PORT = SERVER_PORT
 
