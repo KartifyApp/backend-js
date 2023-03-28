@@ -11,6 +11,15 @@ export class PlatformService {
         }
     }
 
+    static async getUserPlatforms(userId, platformId = null) {
+        try {
+            const platforms = await client.query(`SELECT * FROM platform WHERE user_id = '${userId}' ${platformId ? `AND platform_id = '${platformId}'` : ''}`)
+            return platforms.rows
+        } catch (error) {
+            throw Error(`Error fetching platforms for user ${userId}`)
+        }
+    }
+
     static async createPlatform(platform) {
         try {
             await client.query(
