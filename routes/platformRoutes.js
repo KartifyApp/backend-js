@@ -9,6 +9,10 @@ router
     .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getAllPlatforms)
     .post(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.createNewPlatform)
 
-router.route('/:platformId').get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getPlatform).put().delete()
+router
+    .route('/:platformId')
+    .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getPlatform)
+    .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatform)
+    .delete()
 
 export default router
