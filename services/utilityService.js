@@ -2,7 +2,9 @@ export class UtilityService {
     static getValues(hardKeys, softKeys, obj) {
         var objCreated = {}
         hardKeys.forEach((key) => {
-            if (!obj[key]) return null
+            if (!obj[key]) {
+                throw Error(`${key} not provided.`)
+            }
             objCreated[key] = obj[key]
         })
         softKeys.forEach(([key, value]) => {

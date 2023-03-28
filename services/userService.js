@@ -1,7 +1,5 @@
-import bcrypt from 'bcrypt'
-import { SALT_ROUNDS } from '../constants.js'
-
 import { client } from '../models/db.js'
+import { BcryptService } from './externalService.js'
 import { UtilityService } from './utilityService.js'
 
 export class UserService {
@@ -24,27 +22,16 @@ export class UserService {
     }
 
     static async createUser(user) {
-        const salt = await bcrypt.genSalt(SALT_ROUNDS)
-        const hashedPassword = await bcrypt.hash(user.password, salt)
+        const hashedPassword = await BcryptService.hash(user.password)
         try {
-            await client.query(`
-                INSERT INTO users (name, email, username, password, user_address, user_type) 
+            const createdUser = await client.query(
+                `INSERT INTO users (name, email, username, password, user_address, user_type) 
                 VALUES ('${user.name}', '${user.email}', '${user.username}', '${hashedPassword}', '${JSON.stringify(user.address)}', '${user.userType}')
-            `)
-            return true
+                RETURNING user_id, name, email, username, user_address, user_type`
+            )
+            return createdUser.rowCount > 0 ? UtilityService.camelCaseObject(createdUser.rows[0]) : null
         } catch (error) {
             throw Error(`Error creating user with username ${user.username}.`)
         }
-    }
-
-    static async checkPassword(username, password) {
-        const user = await UserService.getUserByUsername(username)
-        if (!user) {
-            throw Error(`Invalid username ${username}`)
-        }
-        if (!(await bcrypt.compare(password, user.password))) {
-            throw Error(`Invalid password for username ${username}`)
-        }
-        return user
     }
 }

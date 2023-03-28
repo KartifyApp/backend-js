@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import { StatusCode, UserType } from '../models/enumConstants.js'
-import { TokenService } from './tokenService.js'
+import { TokenService } from './externalService.js'
 import { UserService } from './userService.js'
 
 export class MiddlewareService {
@@ -12,7 +12,6 @@ export class MiddlewareService {
                 req.user = await UserService.getUserById(decoded.userId)
                 next()
             } catch (error) {
-                console.error(error)
                 res.status(StatusCode.UNAUTHORIZED)
                 throw Error('Not authorized, token failed')
             }
