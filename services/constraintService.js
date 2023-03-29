@@ -34,7 +34,7 @@ export class ConstraintService {
     static async checkUserPlatform(userId, platformId) {
         const platforms = await PlatformService.getUserPlatforms(userId, platformId)
         if (platforms.length === 0) {
-            throw Error(`No platform ${req.params.platformId} exists for user ${req.user.userId}.`)
+            throw Error(`No platformId ${platformId} exists for userId ${userId}.`)
         }
         return platforms[0]
     }

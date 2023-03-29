@@ -2,6 +2,15 @@ import { client } from '../models/db.js'
 import { UtilityService } from './utilityService.js'
 
 export class ProductService {
+    static async getPlatformProducts(platformId, category) {
+        try {
+            const products = await client.query(`SELECT * FROM product WHERE platform_id = '${platformId}' ${category ? `AND category = '${category}'` : ''}`)
+            return products.rows.map((row) => UtilityService.camelCaseObject(row))
+        } catch (error) {
+            throw Error(`Error fetching platform products from platformId ${platformId}.`)
+        }
+    }
+
     static async createProduct(product) {
         try {
             const createdProduct = await client.query(

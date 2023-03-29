@@ -9,6 +9,16 @@ export class ProductController {
     // @desc    Create a product in a platform
     // @route   POST /api/product/
     // @access  Provider
+    static getAllProducts = expressAsyncHandler(async (req, res) => {
+        const productData = UtilityService.getValues(['platformId'], [['category', null]], req.query)
+        await ConstraintService.checkUserPlatform(req.user.userId, productData.platformId)
+        const products = await ProductService.getPlatformProducts(productData.platformId, productData.category)
+        res.status(StatusCode.SUCCESSFUL).json(products)
+    })
+
+    // @desc    Create a product in a platform
+    // @route   POST /api/product/
+    // @access  Provider
     static createNewProduct = expressAsyncHandler(async (req, res) => {
         const productData = UtilityService.getValues(
             ['name', 'brand', 'category', 'platformId'],
