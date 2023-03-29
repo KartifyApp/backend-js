@@ -1,8 +1,8 @@
-import express from 'express'
+import { Router } from 'express'
 import { PlatformController } from '../controllers/platformController.js'
 import { MiddlewareService } from '../services/middlewareService.js'
 
-const router = express.Router()
+const router = Router()
 
 router
     .route('/')
@@ -12,7 +12,7 @@ router
 router
     .route('/:platformId')
     .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getPlatform)
-    .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatform)
+    .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatformData)
     .delete()
 
 export default router

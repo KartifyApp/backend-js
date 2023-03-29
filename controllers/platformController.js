@@ -45,7 +45,7 @@ export class PlatformController {
     // @desc    Update platform data
     // @route   PUT /api/platform/:platformId
     // @access  Provider
-    static updatePlatform = expressAsyncHandler(async (req, res) => {
+    static updatePlatformData = expressAsyncHandler(async (req, res) => {
         var platform = await ConstraintService.checkUserPlatform(req.user.userId, req.params.platformId)
         var platformData = UtilityService.getValues(
             [],

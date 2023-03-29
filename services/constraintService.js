@@ -38,4 +38,11 @@ export class ConstraintService {
         }
         return platforms[0]
     }
+
+    static async checkProductCategory(platform, category) {
+        if (!platform.categories.includes(category)) {
+            throw Error(`Platform does not have ${category} category.`)
+        }
+        return true
+    }
 }

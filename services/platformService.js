@@ -2,12 +2,21 @@ import { client } from '../models/db.js'
 import { UtilityService } from './utilityService.js'
 
 export class PlatformService {
+    static async getPlatformById(platformId) {
+        try {
+            const platform = await client.query(`SELECT * FROM platform WHERE platform_id = '${platformId}'`)
+            return platform.rowCount > 0 ? UtilityService.camelCaseObject(platform.rows[0]) : null
+        } catch (error) {
+            throw Error(`Error fetching platform with platformId ${platformId}.`)
+        }
+    }
+
     static async getPlatformByName(name) {
         try {
             const platform = await client.query(`SELECT * FROM platform WHERE name = '${name}'`)
             return platform.rowCount > 0 ? UtilityService.camelCaseObject(platform.rows[0]) : null
         } catch (error) {
-            throw Error(`Error fetching platform with name ${name}`)
+            throw Error(`Error fetching platform with name ${name}.`)
         }
     }
 
@@ -16,7 +25,7 @@ export class PlatformService {
             const platforms = await client.query(`SELECT * FROM platform WHERE user_id = '${userId}' ${platformId ? `AND platform_id = '${platformId}'` : ''}`)
             return platforms.rows.map((row) => UtilityService.camelCaseObject(row))
         } catch (error) {
-            throw Error(`Error fetching platforms for user ${userId}`)
+            throw Error(`Error fetching platforms for user ${userId}.`)
         }
     }
 
