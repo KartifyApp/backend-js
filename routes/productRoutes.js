@@ -9,4 +9,10 @@ router
     .get(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.getAllProducts)
     .post(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.createNewProduct)
 
+router
+    .route('/:productId')
+    .get(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.getProduct)
+    .put(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.updateProductData)
+    .delete()
+
 export default router

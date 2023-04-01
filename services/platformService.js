@@ -20,9 +20,9 @@ export class PlatformService {
         }
     }
 
-    static async getUserPlatforms(userId, platformId = null) {
+    static async getUserPlatforms(userId) {
         try {
-            const platforms = await client.query(`SELECT * FROM platform WHERE user_id = '${userId}' ${platformId ? `AND platform_id = '${platformId}'` : ''}`)
+            const platforms = await client.query(`SELECT * FROM platform WHERE user_id = '${userId}'`)
             return platforms.rows.map((row) => UtilityService.camelCaseObject(row))
         } catch (error) {
             throw Error(`Error fetching platforms for user ${userId}.`)
@@ -44,13 +44,13 @@ export class PlatformService {
 
     static async updatePlatform(platform) {
         try {
-            const createdPlatform = await client.query(
+            const updatedPlatform = await client.query(
                 `UPDATE platform SET name = '${platform.name}', description = '${platform.description}', categories = '${JSON.stringify(platform.categories)}',
                 platform_status = '${platform.platformStatus}', address = '${JSON.stringify(platform.address)}' WHERE platform_id = '${platform.platformId}' RETURNING *`
             )
-            return createdPlatform.rowCount > 0 ? UtilityService.camelCaseObject(createdPlatform.rows[0]) : null
+            return updatedPlatform.rowCount > 0 ? UtilityService.camelCaseObject(updatedPlatform.rows[0]) : null
         } catch (error) {
-            throw Error(`Error updating platform ${platform.platformId}.`)
+            throw Error(`Error updating platform with platformId ${platform.platformId}.`)
         }
     }
 }

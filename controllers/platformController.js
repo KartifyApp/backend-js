@@ -62,8 +62,7 @@ export class PlatformController {
         if (platformData.name != platform.name) {
             await ConstraintService.uniquePlatformName(platformData.name)
         }
-        await PlatformService.updatePlatform(platformData)
-        platform = await PlatformService.getPlatformByName(platformData.name)
+        platform = await PlatformService.updatePlatform(platformData)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 }

@@ -2,6 +2,15 @@ import { client } from '../models/db.js'
 import { UtilityService } from './utilityService.js'
 
 export class ProductService {
+    static async getProductById(productId) {
+        try {
+            const product = await client.query(`SELECT * FROM product WHERE product_id = '${productId}'`)
+            return product.rowCount > 0 ? UtilityService.camelCaseObject(product.rows[0]) : null
+        } catch (error) {
+            throw Error(`Error fetching product with productId ${productId}.`)
+        }
+    }
+
     static async getPlatformProducts(platformId, category) {
         try {
             const products = await client.query(`SELECT * FROM product WHERE platform_id = '${platformId}' ${category ? `AND category = '${category}'` : ''}`)
@@ -21,6 +30,18 @@ export class ProductService {
             return createdProduct.rowCount > 0 ? UtilityService.camelCaseObject(createdProduct.rows[0]) : null
         } catch (error) {
             throw Error(`Error in creating product ${product.name}.`)
+        }
+    }
+
+    static async updateProduct(product) {
+        try {
+            const updatedProduct = await client.query(
+                `UPDATE product SET name = '${product.name}', image = '${product.image}', brand = '${product.brand}', category = '${product.category}', 
+                description = '${product.description}', price = '${product.price}', stock_count = '${product.stockCount}' WHERE product_id = '${product.productId}' RETURNING *`
+            )
+            return updatedProduct.rowCount > 0 ? UtilityService.camelCaseObject(updatedProduct.rows[0]) : null
+        } catch (error) {
+            throw Error(`Error in updating product with productId ${product.productId}.`)
         }
     }
 }

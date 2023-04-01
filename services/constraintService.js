@@ -1,5 +1,6 @@
 import { BcryptService } from './externalService.js'
 import { PlatformService } from './platformService.js'
+import { ProductService } from './productService.js'
 import { UserService } from './userService.js'
 
 export class ConstraintService {
@@ -32,11 +33,20 @@ export class ConstraintService {
     }
 
     static async checkUserPlatform(userId, platformId) {
-        const platforms = await PlatformService.getUserPlatforms(userId, platformId)
-        if (platforms.length === 0) {
+        const platform = await PlatformService.getPlatformById(platformId)
+        if (platform.userId != userId) {
             throw Error(`No platformId ${platformId} exists for userId ${userId}.`)
         }
-        return platforms[0]
+        return platform
+    }
+
+    static async checkUserProduct(userId, productId) {
+        const product = await ProductService.getProductById(productId)
+        if (!product) {
+            throw Error(`No product with productId ${productId}.`)
+        }
+        await ConstraintService.checkUserPlatform(userId, product.platformId)
+        return product
     }
 
     static async checkProductCategory(platform, category) {
