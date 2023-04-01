@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 
 import { JWT_EXPIRE_TIME, JWT_SECRET, SALT_ROUNDS } from '../constants.js'
 
-export class TokenService {
+export class TokenClient {
     static generateToken(userId) {
         return jwt.sign({ userId }, JWT_SECRET, {
             expiresIn: JWT_EXPIRE_TIME
@@ -19,7 +19,7 @@ export class TokenService {
     }
 }
 
-export class BcryptService {
+export class BcryptClient {
     static async hash(password) {
         try {
             const salt = await bcrypt.genSalt(SALT_ROUNDS)

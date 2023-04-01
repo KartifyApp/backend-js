@@ -1,15 +1,15 @@
 import asyncHandler from 'express-async-handler'
 import { StatusCode, UserType } from '../models/enumConstants.js'
-import { TokenService } from './externalService.js'
-import { UserService } from './userService.js'
+import { UserClient } from '../clients/userClient.js'
+import { TokenClient } from '../clients/externalClient.js'
 
 export class MiddlewareService {
     static authorize = asyncHandler(async (req, res, next) => {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
-                const decoded = TokenService.decodeToken(req.headers.authorization.split(' ')[1])
+                const decoded = TokenClient.decodeToken(req.headers.authorization.split(' ')[1])
 
-                req.user = await UserService.getUserById(decoded.userId)
+                req.user = await UserClient.getUserById(decoded.userId)
                 next()
             } catch (error) {
                 res.status(StatusCode.UNAUTHORIZED)

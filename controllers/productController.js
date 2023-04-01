@@ -1,9 +1,10 @@
 import expressAsyncHandler from 'express-async-handler'
 
 import { StatusCode } from '../models/enumConstants.js'
-import { ConstraintService } from '../services/constraintService.js'
-import { ProductService } from '../services/productService.js'
 import { UtilityService } from '../services/utilityService.js'
+import { PlatformService } from '../services/platformService.js'
+import { ProductClient } from '../clients/productClient.js'
+import { ProductService } from '../services/productService.js'
 
 export class ProductController {
     // @desc    Get all products of a platform
@@ -11,8 +12,8 @@ export class ProductController {
     // @access  Provider
     static getAllProducts = expressAsyncHandler(async (req, res) => {
         const productData = UtilityService.getValues(['platformId'], [['category', null]], req.query)
-        await ConstraintService.checkUserPlatform(req.user.userId, productData.platformId)
-        const products = await ProductService.getPlatformProducts(productData.platformId, productData.category)
+        await PlatformService.checkUserPlatform(req.user.userId, productData.platformId)
+        const products = await ProductClient.getPlatformProducts(productData.platformId, productData.category)
         res.status(StatusCode.SUCCESSFUL).json(products)
     })
 
@@ -30,9 +31,9 @@ export class ProductController {
             ],
             req.body
         )
-        const platform = await ConstraintService.checkUserPlatform(req.user.userId, productData.platformId)
-        await ConstraintService.checkProductCategory(platform, productData.category)
-        const product = await ProductService.createProduct(productData)
+        const platform = await PlatformService.checkUserPlatform(req.user.userId, productData.platformId)
+        await ProductService.checkProductCategory(platform, productData.category)
+        const product = await ProductClient.createProduct(productData)
         res.status(StatusCode.SUCCESSFUL).json(product)
     })
 
@@ -40,7 +41,7 @@ export class ProductController {
     // @route   GET /api/product/:productId
     // @access  Provider
     static getProduct = expressAsyncHandler(async (req, res) => {
-        const product = await ConstraintService.checkUserProduct(req.user.userId, req.params.productId)
+        const product = await ProductService.checkUserProduct(req.user.userId, req.params.productId)
         res.status(StatusCode.SUCCESSFUL).json(product)
     })
 
@@ -48,7 +49,7 @@ export class ProductController {
     // @route   PUT /api/product/:productId
     // @access  Provider
     static updateProductData = expressAsyncHandler(async (req, res) => {
-        var product = await ConstraintService.checkUserProduct(req.user.userId, req.params.productId)
+        var product = await ProductService.checkUserProduct(req.user.userId, req.params.productId)
         var productData = UtilityService.getValues(
             [],
             [
@@ -63,9 +64,9 @@ export class ProductController {
             req.body
         )
         productData.productId = product.productId
-        const platform = await ConstraintService.checkUserPlatform(req.user.userId, product.platformId)
-        await ConstraintService.checkProductCategory(platform, productData.category)
-        product = await ProductService.updateProduct(productData)
+        const platform = await PlatformService.checkUserPlatform(req.user.userId, product.platformId)
+        await ProductService.checkProductCategory(platform, productData.category)
+        product = await ProductClient.updateProduct(productData)
         res.status(StatusCode.SUCCESSFUL).json(product)
     })
 }

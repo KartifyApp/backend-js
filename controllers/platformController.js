@@ -1,16 +1,16 @@
 import expressAsyncHandler from 'express-async-handler'
 
 import { PlatformStatus, StatusCode } from '../models/enumConstants.js'
-import { ConstraintService } from '../services/constraintService.js'
 import { PlatformService } from '../services/platformService.js'
 import { UtilityService } from '../services/utilityService.js'
+import { PlatformClient } from '../clients/platformClient.js'
 
 export class PlatformController {
     // @desc    Get all platforms of a user
     // @route   GET /api/platform/
     // @access  Provider
     static getAllPlatforms = expressAsyncHandler(async (req, res) => {
-        const platforms = await PlatformService.getUserPlatforms(req.user.userId)
+        const platforms = await PlatformClient.getUserPlatforms(req.user.userId)
         res.status(StatusCode.SUCCESSFUL).json(platforms)
     })
 
@@ -29,8 +29,8 @@ export class PlatformController {
             req.body
         )
         platformData.userId = req.user.userId
-        await ConstraintService.uniquePlatformName(platformData.name)
-        const platform = await PlatformService.createPlatform(platformData)
+        await PlatformService.uniquePlatformName(platformData.name)
+        const platform = await PlatformClient.createPlatform(platformData)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 
@@ -38,7 +38,7 @@ export class PlatformController {
     // @route   GET /api/platform/:platformId
     // @access  Provider
     static getPlatform = expressAsyncHandler(async (req, res) => {
-        const platform = await ConstraintService.checkUserPlatform(req.user.userId, req.params.platformId)
+        const platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 
@@ -46,7 +46,7 @@ export class PlatformController {
     // @route   PUT /api/platform/:platformId
     // @access  Provider
     static updatePlatformData = expressAsyncHandler(async (req, res) => {
-        var platform = await ConstraintService.checkUserPlatform(req.user.userId, req.params.platformId)
+        var platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
         var platformData = UtilityService.getValues(
             [],
             [
@@ -60,9 +60,9 @@ export class PlatformController {
         )
         platformData.platformId = platform.platformId
         if (platformData.name != platform.name) {
-            await ConstraintService.uniquePlatformName(platformData.name)
+            await PlatformService.uniquePlatformName(platformData.name)
         }
-        platform = await PlatformService.updatePlatform(platformData)
+        platform = await PlatformClient.updatePlatform(platformData)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 }
