@@ -11,7 +11,7 @@ export class UserController {
     // @route   POST /api/user/
     // @access  Public
     static registerUser = expressAsyncHandler(async (req, res) => {
-        var userData = UtilityService.getValues(
+        const userData = UtilityService.getValues(
             ['name', 'email', 'username', 'password'],
             [
                 ['address', {}],
@@ -28,7 +28,7 @@ export class UserController {
     // @route   POST /api/user/login
     // @access  Public
     static loginUser = expressAsyncHandler(async (req, res) => {
-        var userData = UtilityService.getValues(['username', 'password'], [], req.body)
+        const userData = UtilityService.getValues(['username', 'password'], [], req.body)
         const user = await UserService.checkPassword(userData.username, userData.password)
         res.status(StatusCode.SUCCESSFUL).json({
             ...user,

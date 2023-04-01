@@ -65,4 +65,13 @@ export class PlatformController {
         platform = await PlatformClient.updatePlatform(platformData)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
+
+    // @desc    Delete a Platform
+    // @route   DELETE /api/platform/:platformId
+    // @access  Provider
+    static deletePlatform = expressAsyncHandler(async (req, res) => {
+        var platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+        platform = await PlatformClient.deletePlatform(platform)
+        res.status(StatusCode.SUCCESSFUL).json(platform)
+    })
 }

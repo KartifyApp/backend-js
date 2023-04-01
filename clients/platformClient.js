@@ -53,4 +53,13 @@ export class PlatformClient {
             throw Error(`Error updating platform with platformId ${platform.platformId}.`)
         }
     }
+
+    static async deletePlatform(platform) {
+        try {
+            const deletedPlatform = await client.query(`DELETE FROM platform WHERE platform_id = ${platform.platformId} RETURNING *`)
+            return deletedPlatform.rowCount > 0 ? UtilityService.camelCaseObject(deletedPlatform.rows[0]) : null
+        } catch (error) {
+            throw Error(`Error deleting platform with platformId ${platform.platformId}.`)
+        }
+    }
 }

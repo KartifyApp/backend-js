@@ -69,4 +69,13 @@ export class ProductController {
         product = await ProductClient.updateProduct(productData)
         res.status(StatusCode.SUCCESSFUL).json(product)
     })
+
+    // @desc    Delete a product
+    // @route   DELETE /api/product/:productId
+    // @access  Provider
+    static deleteProduct = expressAsyncHandler(async (req, res) => {
+        var product = await ProductService.checkUserProduct(req.user.userId, req.params.productId)
+        product = await ProductClient.deleteProduct(product)
+        res.status(StatusCode.SUCCESSFUL).json(product)
+    })
 }

@@ -44,4 +44,13 @@ export class ProductClient {
             throw Error(`Error in updating product with productId ${product.productId}.`)
         }
     }
+
+    static async deleteProduct(product) {
+        try {
+            const deletedProduct = await client.query(`DELETE FROM product WHERE product_id = '${product.productId}' RETURNING *`)
+            return deletedProduct.rowCount > 0 ? UtilityService.camelCaseObject(deletedProduct.rows[0]) : null
+        } catch (error) {
+            throw Error(`Error in deleteing product with productId ${product.productId}.`)
+        }
+    }
 }

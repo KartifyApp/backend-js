@@ -13,6 +13,6 @@ router
     .route('/:productId')
     .get(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.getProduct)
     .put(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.updateProductData)
-    .delete()
+    .delete(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.deleteProduct)
 
 export default router

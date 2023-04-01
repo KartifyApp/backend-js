@@ -13,6 +13,6 @@ router
     .route('/:platformId')
     .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getPlatform)
     .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatformData)
-    .delete()
+    .delete(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.deletePlatform)
 
 export default router
