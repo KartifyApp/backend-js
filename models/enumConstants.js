@@ -20,11 +20,13 @@ export const PlatformStatus = Object.freeze({
 export const TableNames = Object.freeze({
     USER: 'users',
     PLATFORM: 'platform',
-    PLATFORM_REVIEW: 'platform_review'
+    PLATFORM_REVIEW: 'platform_review',
+    PRODUCT: 'product'
 })
 
 export const PrimaryKeys = Object.freeze({
     users: 'user_id',
     platform: 'platform_id',
-    platform_review: 'platform_review_id'
+    platform_review: 'platform_review_id',
+    product: 'product_id'
 })

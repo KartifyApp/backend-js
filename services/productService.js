@@ -1,13 +1,19 @@
-import { ProductClient } from '../clients/productClient.js'
+import { TableNames } from '../models/enumConstants.js'
+import { DBService } from './DBService.js'
 import { PlatformService } from './platformService.js'
 
 export class ProductService {
-    static async checkUserProduct(userId, productId) {
-        const product = await ProductClient.getProductById(productId)
-        if (!product) {
+    static async getProductById(productId) {
+        const products = await DBService.getData(TableNames.PRODUCT, { productId: productId })
+        if (products.length == 0) {
             throw Error(`No product with productId ${productId} exists.`)
         }
-        await PlatformService.checkUserPlatform(userId, product.platformId)
+        return products[0]
+    }
+
+    static async getUserProduct(userId, productId) {
+        const product = await ProductService.getProductById(productId)
+        await PlatformService.getUserPlatform(userId, product.platformId)
         return product
     }
 

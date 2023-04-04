@@ -1,4 +1,3 @@
-import { PlatformClient, PlatformReviewClient } from '../clients/platformClient.js'
 import { TableNames } from '../models/enumConstants.js'
 import { DBService } from './DBService.js'
 
@@ -11,7 +10,15 @@ export class PlatformService {
         return true
     }
 
-    static async checkUserPlatform(userId, platformId) {
+    static async getPlatformById(platformId) {
+        const platforms = await DBService.getData(TableNames.PLATFORM, { platformId: platformId })
+        if (platforms.length === 0) {
+            throw Error(`No platform with platformId ${platformId} exists.`)
+        }
+        return platforms[0]
+    }
+
+    static async getUserPlatform(userId, platformId) {
         const platforms = await DBService.getData(TableNames.PLATFORM, { platformId: platformId, userId: userId })
         if (platforms.length === 0) {
             throw Error(`No platform with platformId ${platformId} exists for userId ${userId}.`)
@@ -21,7 +28,7 @@ export class PlatformService {
 }
 
 export class PlatformReviewService {
-    static async checkUserPlatformReview(userId, platformId, platformReviewId) {
+    static async getUserPlatformReview(userId, platformId, platformReviewId) {
         const platformReviews = await DBService.getData(TableNames.PLATFORM_REVIEW, {
             userId: userId,
             platformId: platformId,

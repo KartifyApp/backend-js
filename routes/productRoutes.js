@@ -6,13 +6,13 @@ const router = Router()
 
 router
     .route('/')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.getAllProducts)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, ProductController.getAllProducts)
     .post(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.createNewProduct)
 
 router
     .route('/:productId')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.getProduct)
-    .put(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.updateProductData)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, ProductController.getProductDetails)
+    .put(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.updateProductDetails)
     .delete(MiddlewareService.authorize, MiddlewareService.providerUser, ProductController.deleteProduct)
 
 export default router

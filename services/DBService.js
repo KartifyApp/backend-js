@@ -64,8 +64,10 @@ export class DBService {
 
     static async updateData(tableName, tableData, primaryKey) {
         try {
+            const updateList = StringService.entriesList(tableData)
+            if (updateList.length === 0) throw Error()
             const updatedRow = await client.query(
-                `UPDATE ${tableName} SET ${StringService.entriesList(tableData).join(', ')} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`
+                `UPDATE ${tableName} SET ${updateList.join(', ')} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`
             )
             return updatedRow.rowCount > 0 ? StringService.camelCaseObject(updatedRow.rows[0]) : null
         } catch (error) {

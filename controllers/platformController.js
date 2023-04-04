@@ -8,7 +8,7 @@ import { DBService } from '../services/DBService.js'
 export class PlatformController {
     // @desc    Get all platforms of a user
     // @route   GET /api/platform/
-    // @access  Provider
+    // @access  Provider and Consumer
     static getAllPlatforms = expressAsyncHandler(async (req, res) => {
         console.log(req.user.userType)
         const platforms =
@@ -44,8 +44,8 @@ export class PlatformController {
     static getPlatformDetails = expressAsyncHandler(async (req, res) => {
         const platform =
             req.user.userType == UserType.PROVIDER
-                ? await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
-                : (await DBService.getData(TableNames.PLATFORM, { platformId: req.params.platformId }))[0]
+                ? await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
+                : await PlatformService.getPlatformById(req.params.platformId)
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 
@@ -53,7 +53,7 @@ export class PlatformController {
     // @route   PUT /api/platform/:platformId
     // @access  Provider
     static updatePlatformDetails = expressAsyncHandler(async (req, res) => {
-        const platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+        const platform = await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
         const platformData = UtilityService.getUpdateValues(['name', 'description', 'categories', 'platformStatus', 'platformAddress'], platform, req.body)
         if (platformData.name) {
             await PlatformService.uniquePlatformName(platformData.name)
@@ -66,7 +66,7 @@ export class PlatformController {
     // @route   DELETE /api/platform/:platformId
     // @access  Provider
     static deletePlatform = expressAsyncHandler(async (req, res) => {
-        const platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+        const platform = await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
         const deletedPlatform = await DBService.deleteData(TableNames.PLATFORM, platform.platformId)
         res.status(StatusCode.SUCCESSFUL).json(deletedPlatform)
     })
@@ -78,7 +78,7 @@ export class PlatformReviewController {
     // @access  Provider and Consumer
     static getAllPlatformReviews = expressAsyncHandler(async (req, res) => {
         if (req.user.userType == UserType.PROVIDER) {
-            await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+            await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
         }
         const platfromReviews = await DBService.getData(TableNames.PLATFORM_REVIEW, { platformId: req.params.platformId })
         res.status(StatusCode.SUCCESSFUL).json(platfromReviews)
@@ -99,7 +99,7 @@ export class PlatformReviewController {
     // @route   GET /api/platform/:platformId/review/:platformReviewId
     // @access  Consumer
     static getPlatformReviewDetails = expressAsyncHandler(async (req, res) => {
-        const platfromReview = await PlatformReviewService.checkUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platfromReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(platfromReview)
     })
 
@@ -107,7 +107,7 @@ export class PlatformReviewController {
     // @route   PUT /api/platform/:platformId/review/:platformReviewId
     // @access  Provider
     static updatePlatformReviewDetails = expressAsyncHandler(async (req, res) => {
-        const platformReview = await PlatformReviewService.checkUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
         const platformReviewData = UtilityService.getUpdateValues(['comment', 'rating'], platformReview, req.body)
         const updatedPlatformReview = await DBService.updateData(TableNames.PLATFORM_REVIEW, platformReviewData, platformReview.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(updatedPlatformReview)
@@ -117,7 +117,7 @@ export class PlatformReviewController {
     // @route   DELETE /api/platform/:platformId/review/:platformReviewId
     // @access  Provider
     static deletePlatformReview = expressAsyncHandler(async (req, res) => {
-        const platformReview = await PlatformReviewService.checkUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
         const deletedPlatformReview = await DBService.deleteData(TableNames.PLATFORM_REVIEW, platformReview.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(deletedPlatformReview)
     })
