@@ -3,7 +3,6 @@ import expressAsyncHandler from 'express-async-handler'
 import { PlatformStatus, StatusCode, TableNames, UserType } from '../models/enumConstants.js'
 import { PlatformReviewService, PlatformService } from '../services/platformService.js'
 import { UtilityService } from '../services/utilityService.js'
-import { PlatformClient, PlatformReviewClient } from '../clients/platformClient.js'
 import { DBService } from '../services/DBService.js'
 
 export class PlatformController {
@@ -11,7 +10,11 @@ export class PlatformController {
     // @route   GET /api/platform/
     // @access  Provider
     static getAllPlatforms = expressAsyncHandler(async (req, res) => {
-        const platforms = await DBService.getData(TableNames.PLATFORM, { userId: req.user.userId })
+        console.log(req.user.userType)
+        const platforms =
+            req.user.userType == UserType.PROVIDER
+                ? await DBService.getData(TableNames.PLATFORM, { userId: req.user.userId })
+                : await DBService.getData(TableNames.PLATFORM, {})
         res.status(StatusCode.SUCCESSFUL).json(platforms)
     })
 
@@ -37,9 +40,12 @@ export class PlatformController {
 
     // @desc    Get a platform of a user
     // @route   GET /api/platform/:platformId
-    // @access  Provider
+    // @access  Provider and Consumer
     static getPlatformDetails = expressAsyncHandler(async (req, res) => {
-        const platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+        const platform =
+            req.user.userType == UserType.PROVIDER
+                ? await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
+                : (await DBService.getData(TableNames.PLATFORM, { platformId: req.params.platformId }))[0]
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 
@@ -48,18 +54,8 @@ export class PlatformController {
     // @access  Provider
     static updatePlatformDetails = expressAsyncHandler(async (req, res) => {
         const platform = await PlatformService.checkUserPlatform(req.user.userId, req.params.platformId)
-        var platformData = UtilityService.getValues(
-            [],
-            [
-                ['name', platform.name],
-                ['description', platform.description],
-                ['categories', platform.categories],
-                ['platformStatus', platform.platformStatus],
-                ['platformAddress', platform.platformAddress]
-            ],
-            req.body
-        )
-        if (platformData.name != platform.name) {
+        const platformData = UtilityService.getUpdateValues(['name', 'description', 'categories', 'platformStatus', 'platformAddress'], platform, req.body)
+        if (platformData.name) {
             await PlatformService.uniquePlatformName(platformData.name)
         }
         const updatedPlatform = await DBService.updateData(TableNames.PLATFORM, platformData, platform.platformId)
@@ -112,14 +108,7 @@ export class PlatformReviewController {
     // @access  Provider
     static updatePlatformReviewDetails = expressAsyncHandler(async (req, res) => {
         const platformReview = await PlatformReviewService.checkUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
-        const platformReviewData = UtilityService.getValues(
-            [],
-            [
-                ['comment', platformReview.comment],
-                ['rating', platformReview.rating]
-            ],
-            req.body
-        )
+        const platformReviewData = UtilityService.getUpdateValues(['comment', 'rating'], platformReview, req.body)
         const updatedPlatformReview = await DBService.updateData(TableNames.PLATFORM_REVIEW, platformReviewData, platformReview.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(updatedPlatformReview)
     })

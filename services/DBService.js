@@ -32,27 +32,30 @@ export class StringService {
             .join(', ')
     }
 
-    static entriesList(obj, joinStr) {
+    static entriesList(obj) {
         return Object.keys(obj)
             .sort()
             .map((key) => `${StringService.snakeCase(key)} = '${typeof obj[key] == 'object' ? JSON.stringify(obj[key]) : obj[key]}'`)
-            .join(joinStr)
     }
 }
 
 export class DBService {
     static async getData(tableName, tableData) {
         try {
-            const tableRows = await client.query(`SELECT * FROM ${tableName} WHERE ${StringService.entriesList(tableData, ' AND ')}`)
+            const queries = StringService.entriesList(tableData)
+            const tableRows = await client.query(`SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.join(' AND ') : ''}`)
             return tableRows.rows.map((row) => StringService.camelCaseObject(row))
         } catch (error) {
+            console.log(`SELECT * FROM ${tableName} WHERE ${StringService.entriesList(tableData, ' AND ')}`)
             throw Error(`Error fetching from ${tableName}.`)
         }
     }
 
     static async createData(tableName, tableData) {
         try {
-            const createdRow = await client.query(`INSERT INTO ${tableName} (${StringService.keysList(tableData)}) VALUES (${StringService.valuesList(tableData)}) RETURNING *`)
+            const createdRow = await client.query(
+                `INSERT INTO ${tableName} (${StringService.keysList(tableData)}) VALUES (${StringService.valuesList(tableData)}) RETURNING *`
+            )
             return createdRow.rowCount > 0 ? StringService.camelCaseObject(createdRow.rows[0]) : null
         } catch (error) {
             throw Error(`Error creating new ${tableName}.`)
@@ -62,7 +65,7 @@ export class DBService {
     static async updateData(tableName, tableData, primaryKey) {
         try {
             const updatedRow = await client.query(
-                `UPDATE ${tableName} SET ${StringService.entriesList(tableData, ', ')} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`
+                `UPDATE ${tableName} SET ${StringService.entriesList(tableData).join(', ')} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`
             )
             return updatedRow.rowCount > 0 ? StringService.camelCaseObject(updatedRow.rows[0]) : null
         } catch (error) {

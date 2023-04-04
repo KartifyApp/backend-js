@@ -12,12 +12,9 @@ export class PlatformService {
     }
 
     static async checkUserPlatform(userId, platformId) {
-        const platforms = await DBService.getData(TableNames.PLATFORM, { platformId: platformId })
+        const platforms = await DBService.getData(TableNames.PLATFORM, { platformId: platformId, userId: userId })
         if (platforms.length === 0) {
-            throw Error(`No platform with platformId ${platformId} exists.`)
-        }
-        if (platforms[0].userId != userId) {
-            throw Error(`Platform with platformId ${platformId} doesn't belong to user with userId ${userId}.`)
+            throw Error(`No platform with platformId ${platformId} exists for userId ${userId}.`)
         }
         return platforms[0]
     }

@@ -11,7 +11,7 @@ router
 
 router
     .route('/:platformId')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.getPlatformDetails)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, PlatformController.getPlatformDetails)
     .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatformDetails)
     .delete(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.deletePlatform)
 

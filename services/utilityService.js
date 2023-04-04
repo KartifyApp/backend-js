@@ -14,6 +14,16 @@ export class UtilityService {
         return objCreated
     }
 
+    static getUpdateValues(keys, oldObj, newObj) {
+        var updateObj = {}
+        keys.forEach((key) => {
+            if (newObj[key] && oldObj[key] != newObj[key]) {
+                updateObj[key] = newObj[key]
+            }
+        })
+        return updateObj
+    }
+
     static camelCaseObject(obj) {
         var newObj = {}
         Object.entries(obj).forEach(([key, val]) => {
