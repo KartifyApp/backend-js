@@ -17,13 +17,13 @@ router
 
 router
     .route('/:platformId/review')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformReviewController.getAllPlatformReviews)
-    .post(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformReviewController.createNewPlatformReview)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, PlatformReviewController.getAllPlatformReviews)
+    .post(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.createNewPlatformReview)
 
 router
     .route('/:platformId/review/:platformReviewId')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformReviewController.getPlatformReviewDetails)
-    .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformReviewController.updatePlatformReviewDetails)
-    .delete(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformReviewController.deletePlatformReview)
+    .get(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.getPlatformReviewDetails)
+    .put(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.updatePlatformReviewDetails)
+    .delete(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.deletePlatformReview)
 
 export default router
