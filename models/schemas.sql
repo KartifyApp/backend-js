@@ -78,7 +78,7 @@ CREATE TABLE platform (
     user_id int,
     categories jsonb NOT NULL DEFAULT '[]',
     platform_status platform_status NOT NULL DEFAULT 'DOWNTIME',
-    address jsonb NOT NULL DEFAULT '{}',
+    platform_address jsonb NOT NULL DEFAULT '{}',
     PRIMARY KEY (platform_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     UNIQUE (name)

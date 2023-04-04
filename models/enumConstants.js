@@ -16,3 +16,13 @@ export const PlatformStatus = Object.freeze({
     PAYMENT_GATEWAY: 'PAYMENT_GATEWAY',
     DOWNTIME: 'DOWNTIME'
 })
+
+export const TableNames = Object.freeze({
+    USER: 'users',
+    PLATFORM: 'platform'
+})
+
+export const PrimaryKeys = Object.freeze({
+    users: 'user_id',
+    platform: 'platform_id'
+})

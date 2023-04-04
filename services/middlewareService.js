@@ -1,11 +1,11 @@
-import asyncHandler from 'express-async-handler'
+import expressAsyncHandler from 'express-async-handler'
 
 import { StatusCode, UserType } from '../models/enumConstants.js'
 import { UserClient } from '../clients/userClient.js'
 import { TokenClient } from '../clients/externalClient.js'
 
 export class MiddlewareService {
-    static authorize = asyncHandler(async (req, res, next) => {
+    static authorize = expressAsyncHandler(async (req, res, next) => {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
                 const decoded = TokenClient.decodeToken(req.headers.authorization.split(' ')[1])
@@ -22,7 +22,7 @@ export class MiddlewareService {
         }
     })
 
-    static adminUser = asyncHandler(async (req, res, next) => {
+    static adminUser = expressAsyncHandler(async (req, res, next) => {
         if (req.user && req.user.userType === UserType.ADMIN) {
             next()
         } else {
@@ -31,7 +31,7 @@ export class MiddlewareService {
         }
     })
 
-    static providerUser = asyncHandler(async (req, res, next) => {
+    static providerUser = expressAsyncHandler(async (req, res, next) => {
         if (req.user && req.user.userType === UserType.PROVIDER) {
             next()
         } else {
@@ -40,7 +40,7 @@ export class MiddlewareService {
         }
     })
 
-    static consumerUser = asyncHandler(async (req, res, next) => {
+    static consumerUser = expressAsyncHandler(async (req, res, next) => {
         if (req.user && req.user.userType === UserType.CONSUMER) {
             next()
         } else {
@@ -49,7 +49,16 @@ export class MiddlewareService {
         }
     })
 
-    static deliveryUser = asyncHandler(async (req, res, next) => {
+    static providerAndConsumerUser = expressAsyncHandler(async (req, res, next) => {
+        if (req.user && (req.user.userType == UserType.PROVIDER || req.user.userType == UserType.CONSUMER)) {
+            next()
+        } else {
+            res.status(StatusCode.UNAUTHORIZED)
+            throw Error(`Not authorized as Provider or Consumer.`)
+        }
+    })
+
+    static deliveryUser = expressAsyncHandler(async (req, res, next) => {
         if (req.user && req.user.userType === UserType.DELIVERY) {
             next()
         } else {

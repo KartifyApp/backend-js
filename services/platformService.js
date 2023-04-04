@@ -1,22 +1,37 @@
-import { PlatformClient } from '../clients/platformClient.js'
+import { PlatformClient, PlatformReviewClient } from '../clients/platformClient.js'
+import { TableNames } from '../models/enumConstants.js'
+import { DBService } from './DBService.js'
 
 export class PlatformService {
     static async uniquePlatformName(name) {
-        const platform = await PlatformClient.getPlatformByName(name)
-        if (platform) {
+        const platforms = await DBService.getData(TableNames.PLATFORM, { name: name })
+        if (platforms.length > 0) {
             throw Error(`Platform with name ${name} already exists.`)
         }
         return true
     }
 
     static async checkUserPlatform(userId, platformId) {
-        const platform = await PlatformClient.getPlatformById(platformId)
-        if (!platform) {
+        const platforms = await DBService.getData(TableNames.PLATFORM, { platformId: platformId })
+        if (platforms.length === 0) {
             throw Error(`No platform with platformId ${platformId} exists.`)
         }
-        if (platform.userId != userId) {
+        if (platforms[0].userId != userId) {
             throw Error(`Platform with platformId ${platformId} doesn't belong to user with userId ${userId}.`)
         }
-        return platform
+        return platforms[0]
+    }
+}
+
+export class PlatformReviewService {
+    static async checkUserPlatformReview(userId, platformId, platformReviewId) {
+        const platformReviews = await PlatformReviewClient.getPlatformReviews({ platformReviewId: platformReviewId })
+        if (platformReviews.length === 0) {
+            throw Error(`No platform review with platformReviewId ${platformReviewId} exists.`)
+        }
+        if (platformReviews[0].userId != userId) {
+            throw Error(`Platform review with platformReviewId ${platformReviewId} doesn't belong to user with userId ${userId}.`)
+        }
+        return platformReviews[0]
     }
 }
