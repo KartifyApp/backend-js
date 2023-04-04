@@ -5,6 +5,7 @@ import { SERVER_PORT } from './constants.js'
 import userRoutes from './routes/userRoutes.js'
 import platformRoutes from './routes/platformRoutes.js'
 import productRoutes from './routes/productRoutes.js'
+import { MiddlewareService } from './services/middlewareService.js'
 
 const app = express()
 
@@ -20,6 +21,9 @@ app.use(
 app.use('/api/user', userRoutes)
 app.use('/api/platform', platformRoutes)
 app.use('/api/product', productRoutes)
+
+app.use(MiddlewareService.notFound)
+app.use(MiddlewareService.errorHandler)
 
 const PORT = SERVER_PORT
 

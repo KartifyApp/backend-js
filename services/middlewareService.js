@@ -57,4 +57,19 @@ export class MiddlewareService {
             throw Error(`Not authorized as Delivery.`)
         }
     })
+
+    static notFound = (req, res, next) => {
+        const error = new Error(`Not found ${req.originalUrl}`)
+        res.status(404)
+        next(error)
+    }
+
+    static errorHandler = (err, req, res, next) => {
+        const statusCode = res.statusCode === 200 ? 500 : res.statusCode
+        res.status(statusCode)
+        res.json({
+            message: err.message,
+            stack: err.stack.split('\n').map((str) => str.trim())
+        })
+    }
 }
