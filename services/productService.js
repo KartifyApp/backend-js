@@ -24,3 +24,17 @@ export class ProductService {
         return true
     }
 }
+
+export class ProductReviewService {
+    static async getUserProductReview(userId, productId, productReviewId) {
+        const productReviews = await DBService.getData(TableNames.PRODUCT_REVIEW, {
+            userId: userId,
+            productId: productId,
+            productReviewId: productReviewId
+        })
+        if (productReviews.length === 0) {
+            throw Error(`No product review with productReviewId ${productReviewId} exists for userId ${userId} and productId ${productId}.`)
+        }
+        return productReviews[0]
+    }
+}
