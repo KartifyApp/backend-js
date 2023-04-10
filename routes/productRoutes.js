@@ -18,12 +18,12 @@ router
 router
     .route('/:productId/review')
     .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, ProductReviewController.getAllProductReviews)
-    .post(MiddlewareService.authorize, MiddlewareService.providerUser, ProductReviewController.createNewProductReview)
+    .post(MiddlewareService.authorize, MiddlewareService.consumerUser, ProductReviewController.createNewProductReview)
 
 router
     .route('/:productId/review/:productReviewId')
     .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, ProductReviewController.getProductReviewDetails)
-    .put(MiddlewareService.authorize, MiddlewareService.providerUser, ProductReviewController.updateProductReviewDetails)
-    .delete(MiddlewareService.authorize, MiddlewareService.providerUser, ProductReviewController.deleteProductReview)
+    .put(MiddlewareService.authorize, MiddlewareService.consumerUser, ProductReviewController.updateProductReviewDetails)
+    .delete(MiddlewareService.authorize, MiddlewareService.consumerUser, ProductReviewController.deleteProductReview)
 
 export default router

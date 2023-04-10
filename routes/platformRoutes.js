@@ -22,7 +22,7 @@ router
 
 router
     .route('/:platformId/review/:platformReviewId')
-    .get(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.getPlatformReviewDetails)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, PlatformReviewController.getPlatformReviewDetails)
     .put(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.updatePlatformReviewDetails)
     .delete(MiddlewareService.authorize, MiddlewareService.consumerUser, PlatformReviewController.deletePlatformReview)
 

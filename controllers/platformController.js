@@ -10,7 +10,6 @@ export class PlatformController {
     // @route   GET /api/platform/
     // @access  Provider and Consumer
     static getAllPlatforms = expressAsyncHandler(async (req, res) => {
-        console.log(req.user.userType)
         const platforms =
             req.user.userType == UserType.PROVIDER
                 ? await DBService.getData(TableNames.PLATFORM, { userId: req.user.userId })
