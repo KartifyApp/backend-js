@@ -68,11 +68,17 @@ export class UserController {
 export class DeliveryJobController {
     // @desc    Get delivery jobs of a platform
     // @route   GET /api/user/delivery
-    // @access  Provider
+    // @access  Provider and Delivery
     static getAllDeliveryJobs = expressAsyncHandler(async (req, res) => {
-        const deliveryJobData = UtilityService.getValues(['platformId'], [], req.query)
-        const platform = await PlatformService.getUserPlatform(req.user.userId, deliveryJobData.platformId)
-        const deliveryJobs = await DBService.getData(TableNames.DELIVERY_JOB, { platformId: platform.platformId })
+        var deliveryJobData
+        if (req.user.userType == UserType.PROVIDER) {
+            deliveryJobData = UtilityService.getValues(['platformId'], [], req.query)
+            await PlatformService.getUserPlatform(req.user.userId, deliveryJobData.platformId)
+        }
+        const deliveryJobs = await DBService.getData(
+            TableNames.DELIVERY_JOB,
+            req.user.userType == UserType.PROVIDER ? { platformId: deliveryJobData.platformId } : { userId: req.user.userId }
+        )
         res.status(StatusCode.SUCCESSFUL).json(deliveryJobs)
     })
 

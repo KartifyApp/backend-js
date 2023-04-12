@@ -67,7 +67,7 @@ export class DeliveryJobService {
         } else {
             const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId: user.userId, deliveryJobId })
             if (deliveryJob.length === 0) {
-                throw Error(`No delivery job with ID ${deliveryJobId} exists for User ID ${userId}.`)
+                throw Error(`No delivery job with ID ${deliveryJobId} exists for User ID ${user.userId}.`)
             }
             return deliveryJob[0]
         }

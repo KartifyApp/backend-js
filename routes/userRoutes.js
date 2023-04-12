@@ -14,7 +14,7 @@ router.post('/auth', UserController.loginUser)
 
 router
     .route('/delivery')
-    .get(MiddlewareService.authorize, MiddlewareService.providerUser, DeliveryJobController.getAllDeliveryJobs)
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, DeliveryJobController.getAllDeliveryJobs)
     .post(MiddlewareService.authorize, MiddlewareService.providerUser, DeliveryJobController.createNewDeliveryJob)
 
 router

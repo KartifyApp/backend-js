@@ -74,6 +74,7 @@ CREATE TABLE users (
 CREATE TABLE platform (
     platform_id SERIAL NOT NULL,
     name character varying NOT NULL,
+    image character varying NOT NULL DEFAULT '',
     description text NOT NULL DEFAULT '',
     user_id int,
     categories jsonb NOT NULL DEFAULT '[]',
@@ -144,9 +145,11 @@ CREATE TABLE orders (
     payment_status payment_status NOT NULL DEFAULT 'PAYMENT_INIT',
     payment_method payment_method NOT NULL DEFAULT 'CASH_ON_DELIVERY',
     user_id integer,
+    platform_id integer,
     delivery_job_id integer,
     PRIMARY KEY (order_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (platform_id) REFERENCES platform(platform_id) ON DELETE SET NULL,
     FOREIGN KEY (delivery_job_id) REFERENCES delivery_job(delivery_job_id) ON DELETE SET NULL
 );
 

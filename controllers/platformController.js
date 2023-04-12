@@ -24,6 +24,7 @@ export class PlatformController {
         const platformData = UtilityService.getValues(
             ['name'],
             [
+                ['image', ''],
                 ['description', ''],
                 ['categories', []],
                 ['platformStatus', PlatformStatus.DOWNTIME],
@@ -53,7 +54,11 @@ export class PlatformController {
     // @access  Provider
     static updatePlatformDetails = expressAsyncHandler(async (req, res) => {
         const platform = await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
-        const platformData = UtilityService.getUpdateValues(['name', 'description', 'categories', 'platformStatus', 'platformAddress'], platform, req.body)
+        const platformData = UtilityService.getUpdateValues(
+            ['name', 'image', 'description', 'categories', 'platformStatus', 'platformAddress'],
+            platform,
+            req.body
+        )
         if (platformData.name) {
             await PlatformService.uniquePlatformName(platformData.name)
         }

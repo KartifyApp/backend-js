@@ -31,6 +31,8 @@ export const PaymentStatus = Object.freeze({
     REFUND_CONFIRMED: 'REFUND_CONFIRMED'
 })
 
+export const AddressKeys = ['postOffice', 'pinCode', 'city', 'country', 'phoneNumber']
+
 export const PaymentMethod = Object.freeze({
     CASH_ON_DELIVERY: 'CASH_ON_DELIVERY',
     ONLINE_TRANSACTION: 'ONLINE_TRANSACTION'
