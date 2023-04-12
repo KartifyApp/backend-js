@@ -124,7 +124,7 @@ CREATE TABLE product_review (
 CREATE TABLE delivery_job (
     delivery_job_id SERIAL NOT NULL,
     salary numeric(10, 2) NOT NULL DEFAULT '0',
-    delivey_status delivery_status NOT NULL DEFAULT 'INACTIVE',
+    delivery_status delivery_status NOT NULL DEFAULT 'INACTIVE',
     user_id integer,
     platform_id integer,
     PRIMARY KEY (delivery_job_id),

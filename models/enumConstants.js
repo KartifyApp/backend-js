@@ -17,12 +17,34 @@ export const PlatformStatus = Object.freeze({
     DOWNTIME: 'DOWNTIME'
 })
 
+export const DeliveryStatus = Object.freeze({
+    ACTIVE: 'ACTIVE',
+    INACTIVE: 'INACTIVE',
+    WORKING: 'WORKING'
+})
+
+export const PaymentStatus = Object.freeze({
+    PAYMENT_INIT: 'PAYMENT_INIT',
+    PAYMENT_PROCESSING: 'PAYMENT_PROCESSING',
+    PAYMENT_CONFIRMED: 'PAYMENT_CONFIRMED',
+    REFUND_PROCESSING: 'REFUND_PROCESSING',
+    REFUND_CONFIRMED: 'REFUND_CONFIRMED'
+})
+
+export const PaymentMethod = Object.freeze({
+    CASH_ON_DELIVERY: 'CASH_ON_DELIVERY',
+    ONLINE_TRANSACTION: 'ONLINE_TRANSACTION'
+})
+
 export const TableNames = Object.freeze({
     USER: 'users',
     PLATFORM: 'platform',
     PLATFORM_REVIEW: 'platform_review',
     PRODUCT: 'product',
-    PRODUCT_REVIEW: 'product_review'
+    PRODUCT_REVIEW: 'product_review',
+    DELIVERY_JOB: 'delivery_job',
+    ORDER: 'orders',
+    ORDER_PRODUCT: 'order_product'
 })
 
 export const PrimaryKeys = Object.freeze({
@@ -30,5 +52,8 @@ export const PrimaryKeys = Object.freeze({
     platform: 'platform_id',
     platform_review: 'platform_review_id',
     product: 'product_id',
-    product_review: 'product_review_id'
+    product_review: 'product_review_id',
+    delivery_job: 'delivery_job_id',
+    orders: 'order_id',
+    order_product: 'order_product_id'
 })
