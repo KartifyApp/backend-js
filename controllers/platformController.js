@@ -81,10 +81,10 @@ export class PlatformReviewController {
     // @route   GET /api/platform/review
     // @access  Provider and Consumer
     static getAllPlatformReviews = expressAsyncHandler(async (req, res) => {
-        if (!req.query.platformId) {
-            throw Error('Platform ID not provided in query.')
-        }
         if (req.user.userType == UserType.PROVIDER) {
+            if (!req.query.platformId) {
+                throw Error('Platform ID not provided in query.')
+            }
             await PlatformService.getUserPlatform(req.user.userId, req.query.platformId)
         }
         const platfromReviews = await DBService.getData(
