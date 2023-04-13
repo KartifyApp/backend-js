@@ -3,9 +3,8 @@ import expressAsyncHandler from 'express-async-handler'
 import { StatusCode, TableNames, UserType } from '../models/enumConstants.js'
 import { UtilityService } from '../services/utilityService.js'
 import { BcryptClient, TokenClient } from '../clients/externalClient.js'
-import { DeliveryJobService, UserService } from '../services/userService.js'
+import { UserService } from '../services/userService.js'
 import { DBService } from '../services/DBService.js'
-import { PlatformService } from '../services/platformService.js'
 
 export class UserController {
     // @desc    Register User
@@ -63,60 +62,12 @@ export class UserController {
             token: TokenClient.generateToken(user.userId)
         })
     })
-}
 
-export class DeliveryJobController {
-    // @desc    Get delivery jobs of a platform
+    // @desc    Get delivery users
     // @route   GET /api/user/delivery
-    // @access  Provider and Delivery
-    static getAllDeliveryJobs = expressAsyncHandler(async (req, res) => {
-        var deliveryJobData
-        if (req.user.userType == UserType.PROVIDER) {
-            deliveryJobData = UtilityService.getValues(['platformId'], [], req.query)
-            await PlatformService.getUserPlatform(req.user.userId, deliveryJobData.platformId)
-        }
-        const deliveryJobs = await DBService.getData(
-            TableNames.DELIVERY_JOB,
-            req.user.userType == UserType.PROVIDER ? { platformId: deliveryJobData.platformId } : { userId: req.user.userId }
-        )
-        res.status(StatusCode.SUCCESSFUL).json(deliveryJobs)
-    })
-
-    // @desc    Create a delivery job
-    // @route   POST /api/user/delivery
     // @access  Provider
-    static createNewDeliveryJob = expressAsyncHandler(async (req, res) => {
-        const deliveryJobData = UtilityService.getValues(['platformId', 'userId', 'salary'], [], req.body)
-        await DeliveryJobService.uniqueDeliveryJob(deliveryJobData.userId, deliveryJobData.platformId)
-        await DeliveryJobService.getDeliveryUser(deliveryJobData.userId)
-        const deliveryJob = await DBService.createData(TableNames.DELIVERY_JOB, deliveryJobData)
-        res.status(StatusCode.SUCCESSFUL).json(deliveryJob)
-    })
-
-    // @desc    Get a delivery job
-    // @route   GET /api/user/delivery/:deliveryJobId
-    // @access  Provider and Delivery
-    static getDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
-        res.status(StatusCode.SUCCESSFUL).json(deliveryJob)
-    })
-
-    // @desc    Update delivery job
-    // @route   PUT /api/user/delivery/:deliveryJobId
-    // @access  Provider and Delivery
-    static updateDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
-        const deliveryJobData = UtilityService.getUpdateValues([req.user.userType == UserType.PROVIDER ? 'salary' : 'deliveryStatus'], deliveryJob, req.body)
-        const updatedDeliveryjob = await DBService.updateData(TableNames.DELIVERY_JOB, deliveryJobData, deliveryJob.deliveryJobId)
-        res.status(StatusCode.SUCCESSFUL).json(updatedDeliveryjob)
-    })
-
-    // @desc    Delete delivery job
-    // @route   DELETE /api/user/delivery/:deliveryJobId
-    // @access  Provider and Delivery
-    static deleteDeliveryJob = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
-        const deletedPlatform = await DBService.deleteData(TableNames.DELIVERY_JOB, deliveryJob.deliveryJobId)
-        res.status(StatusCode.SUCCESSFUL).json(deletedPlatform)
+    static getDeliveryUsers = expressAsyncHandler(async (req, res) => {
+        const deliveryUsers = await DBService.getData(TableNames.USER, { userType: UserType.DELIVERY })
+        res.status(StatusCode.SUCCESSFUL).json(deliveryUsers)
     })
 }

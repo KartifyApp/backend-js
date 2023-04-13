@@ -83,4 +83,16 @@ export class DBService {
             throw Error(`Error deleting from ${tableName}.`)
         }
     }
+
+    static async beginTransaction() {
+        await client.query('BEGIN')
+    }
+
+    static async commitTransaction() {
+        await client.query('COMMIT')
+    }
+
+    static async rollBackTransaction() {
+        await client.query('ROLLBACK')
+    }
 }

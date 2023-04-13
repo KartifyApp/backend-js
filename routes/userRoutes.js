@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { DeliveryJobController, UserController } from '../controllers/userController.js'
+import { UserController } from '../controllers/userController.js'
 import { MiddlewareService } from '../services/middlewareService.js'
 
 const router = Router()
@@ -12,15 +12,6 @@ router
 
 router.post('/auth', UserController.loginUser)
 
-router
-    .route('/delivery')
-    .get(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, DeliveryJobController.getAllDeliveryJobs)
-    .post(MiddlewareService.authorize, MiddlewareService.providerUser, DeliveryJobController.createNewDeliveryJob)
-
-router
-    .route('/delivery/:deliveryJobId')
-    .get(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, DeliveryJobController.getDeliveryJobDetails)
-    .put(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, DeliveryJobController.updateDeliveryJobDetails)
-    .delete(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, DeliveryJobController.deleteDeliveryJob)
+router.get('/delivery', MiddlewareService.authorize, MiddlewareService.providerUser, UserController.getDeliveryUsers)
 
 export default router

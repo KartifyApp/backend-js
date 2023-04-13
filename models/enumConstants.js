@@ -23,6 +23,18 @@ export const DeliveryStatus = Object.freeze({
     WORKING: 'WORKING'
 })
 
+export const OrderStatus = Object.freeze({
+    PLACED: 'PLACED',
+    CONFIRMED: 'CONFIRMED',
+    PICKUP: 'PICKUP',
+    SHIPPED: 'SHIPPED',
+    DELIVERED: 'DELIVERED',
+    TAKE: 'TAKE',
+    RETURNED: 'RETURNED',
+    RECEIVED: 'RECEIVED',
+    CANCELLED: 'CANCELLED'
+})
+
 export const PaymentStatus = Object.freeze({
     PAYMENT_INIT: 'PAYMENT_INIT',
     PAYMENT_PROCESSING: 'PAYMENT_PROCESSING',
@@ -30,8 +42,6 @@ export const PaymentStatus = Object.freeze({
     REFUND_PROCESSING: 'REFUND_PROCESSING',
     REFUND_CONFIRMED: 'REFUND_CONFIRMED'
 })
-
-export const AddressKeys = ['postOffice', 'pinCode', 'city', 'country', 'phoneNumber']
 
 export const PaymentMethod = Object.freeze({
     CASH_ON_DELIVERY: 'CASH_ON_DELIVERY',
@@ -48,6 +58,8 @@ export const TableNames = Object.freeze({
     ORDER: 'orders',
     ORDER_PRODUCT: 'order_product'
 })
+
+export const AddressKeys = ['postOffice', 'pinCode', 'city', 'country', 'phoneNumber']
 
 export const PrimaryKeys = Object.freeze({
     users: 'user_id',
