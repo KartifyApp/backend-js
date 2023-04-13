@@ -26,14 +26,13 @@ export class ProductService {
 }
 
 export class ProductReviewService {
-    static async getUserProductReview(userId, productId, productReviewId) {
+    static async getUserProductReview(userId, productReviewId) {
         const productReviews = await DBService.getData(TableNames.PRODUCT_REVIEW, {
             userId: userId,
-            productId: productId,
             productReviewId: productReviewId
         })
         if (productReviews.length === 0) {
-            throw Error(`No product review with productReviewId ${productReviewId} exists for userId ${userId} and productId ${productId}.`)
+            throw Error(`No product review with productReviewId ${productReviewId} exists for userId ${userId}.`)
         }
         return productReviews[0]
     }

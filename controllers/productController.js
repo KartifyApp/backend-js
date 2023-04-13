@@ -77,50 +77,56 @@ export class ProductController {
 
 export class ProductReviewController {
     // @desc    Get all reviews of a product
-    // @route   GET /api/product/:productId/review
+    // @route   GET /api/product/review
     // @access  Provider and Consumer
     static getAllProductReviews = expressAsyncHandler(async (req, res) => {
         if (req.user.userType == UserType.PROVIDER) {
-            await ProductService.getUserProduct(req.user.userId, req.params.productId)
+            const productReviewData = UtilityService.getValues(['productId'], [], req.query)
+            await ProductService.getUserProduct(req.user.userId, productReviewData.productId)
+            const productReviews = await DBService.getData(TableNames.PRODUCT_REVIEW, productReviewData)
+            res.status(StatusCode.SUCCESSFUL).json(productReviews)
+        } else {
+            const productReviews = await DBService.getData(
+                TableNames.PRODUCT_REVIEW,
+                req.query.productId ? { productId: req.query.productId } : { userId: req.user.userId }
+            )
+            res.status(StatusCode.SUCCESSFUL).json(productReviews)
         }
-        const productReviews = await DBService.getData(TableNames.PRODUCT_REVIEW, { productId: req.params.productId })
-        res.status(StatusCode.SUCCESSFUL).json(productReviews)
     })
 
     // @desc    Create a product review
-    // @route   POST /api/product/:productId/review
+    // @route   POST /api/product/review
     // @access  Consumer
     static createNewProductReview = expressAsyncHandler(async (req, res) => {
-        const productReviewData = UtilityService.getValues(['comment', 'rating'], [], req.body)
+        const productReviewData = UtilityService.getValues(['comment', 'rating', 'productId'], [], req.body)
         productReviewData.userId = req.user.userId
-        productReviewData.productId = req.params.productId
         const productReview = await DBService.createData(TableNames.PRODUCT_REVIEW, productReviewData)
         res.status(StatusCode.SUCCESSFUL).json(productReview)
     })
 
     // @desc    Get a product review
-    // @route   GET /api/product/:productId/review/:productReviewId
+    // @route   GET /api/product/review/:productReviewId
     // @access  Consumer
     static getProductReviewDetails = expressAsyncHandler(async (req, res) => {
-        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productId, req.params.productReviewId)
+        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productReviewId)
         res.status(StatusCode.SUCCESSFUL).json(productReview)
     })
 
     // @desc    Update product review
-    // @route   PUT /api/product/:productId/review/:productReviewId
+    // @route   PUT /api/product/review/:productReviewId
     // @access  Consumer
     static updateProductReviewDetails = expressAsyncHandler(async (req, res) => {
-        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productId, req.params.productReviewId)
+        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productReviewId)
         const productReviewData = UtilityService.getUpdateValues(['comment', 'rating'], productReview, req.body)
         const updatedProductReview = await DBService.updateData(TableNames.PRODUCT_REVIEW, productReviewData, productReview.productReviewId)
         res.status(StatusCode.SUCCESSFUL).json(updatedProductReview)
     })
 
     // @desc    Delete a product Review
-    // @route   DELETE /api/product/:productId/review/:productReviewId
+    // @route   DELETE /api/product/review/:productReviewId
     // @access  Consumer
     static deleteProductReview = expressAsyncHandler(async (req, res) => {
-        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productId, req.params.productReviewId)
+        const productReview = await ProductReviewService.getUserProductReview(req.user.userId, req.params.productReviewId)
         const deletedProductReview = await DBService.deleteData(TableNames.PRODUCT_REVIEW, productReview.productReviewId)
         res.status(StatusCode.SUCCESSFUL).json(deletedProductReview)
     })

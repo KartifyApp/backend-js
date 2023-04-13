@@ -82,16 +82,17 @@ export class PlatformReviewController {
     // @access  Provider and Consumer
     static getAllPlatformReviews = expressAsyncHandler(async (req, res) => {
         if (req.user.userType == UserType.PROVIDER) {
-            if (!req.query.platformId) {
-                throw Error('Platform ID not provided in query.')
-            }
-            await PlatformService.getUserPlatform(req.user.userId, req.query.platformId)
+            const platformReviewData = UtilityService.getValues(['platformId'], [], req.query)
+            await PlatformService.getUserPlatform(req.user.userId, platformReviewData.platformId)
+            const platformReviews = await DBService.getData(TableNames.PLATFORM_REVIEW, platformReviewData)
+            res.status(StatusCode.SUCCESSFUL).json(platformReviews)
+        } else {
+            const platformReviews = await DBService.getData(
+                TableNames.PLATFORM_REVIEW,
+                req.query.platformId ? { platformId: req.query.platformId } : { userId: req.user.userId }
+            )
+            res.status(StatusCode.SUCCESSFUL).json(platformReviews)
         }
-        const platfromReviews = await DBService.getData(
-            TableNames.PLATFORM_REVIEW,
-            req.user.userType == UserType.PROVIDER ? { platformId: req.query.platformId } : { userId: req.user.userId }
-        )
-        res.status(StatusCode.SUCCESSFUL).json(platfromReviews)
     })
 
     // @desc    Create a platform review
