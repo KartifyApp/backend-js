@@ -28,14 +28,13 @@ export class PlatformService {
 }
 
 export class PlatformReviewService {
-    static async getUserPlatformReview(userId, platformId, platformReviewId) {
+    static async getUserPlatformReview(userId, platformReviewId) {
         const platformReviews = await DBService.getData(TableNames.PLATFORM_REVIEW, {
             userId: userId,
-            platformId: platformId,
             platformReviewId: platformReviewId
         })
         if (platformReviews.length === 0) {
-            throw Error(`No platform review with platformReviewId ${platformReviewId} exists for userId ${userId} and platformId ${platformId}.`)
+            throw Error(`No platform review with platformReviewId ${platformReviewId} exists for userId ${userId}.`)
         }
         return platformReviews[0]
     }

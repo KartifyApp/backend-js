@@ -78,50 +78,55 @@ export class PlatformController {
 
 export class PlatformReviewController {
     // @desc    Get all reviews of a platform
-    // @route   GET /api/platform/:platformId/review
+    // @route   GET /api/platform/review
     // @access  Provider and Consumer
     static getAllPlatformReviews = expressAsyncHandler(async (req, res) => {
-        if (req.user.userType == UserType.PROVIDER) {
-            await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
+        if (!req.query.platformId) {
+            throw Error('Platform ID not provided in query.')
         }
-        const platfromReviews = await DBService.getData(TableNames.PLATFORM_REVIEW, { platformId: req.params.platformId })
+        if (req.user.userType == UserType.PROVIDER) {
+            await PlatformService.getUserPlatform(req.user.userId, req.query.platformId)
+        }
+        const platfromReviews = await DBService.getData(
+            TableNames.PLATFORM_REVIEW,
+            req.user.userType == UserType.PROVIDER ? { platformId: req.query.platformId } : { userId: req.user.userId }
+        )
         res.status(StatusCode.SUCCESSFUL).json(platfromReviews)
     })
 
     // @desc    Create a platform review
-    // @route   POST /api/platform/:platformId/review
+    // @route   POST /api/platform/review
     // @access  Consumer
     static createNewPlatformReview = expressAsyncHandler(async (req, res) => {
-        const platformReviewData = UtilityService.getValues(['comment', 'rating'], [], req.body)
+        const platformReviewData = UtilityService.getValues(['comment', 'rating', 'platformId'], [], req.body)
         platformReviewData.userId = req.user.userId
-        platformReviewData.platformId = req.params.platformId
         const platformReview = await DBService.createData(TableNames.PLATFORM_REVIEW, platformReviewData)
         res.status(StatusCode.SUCCESSFUL).json(platformReview)
     })
 
     // @desc    Get a platform review
-    // @route   GET /api/platform/:platformId/review/:platformReviewId
+    // @route   GET /api/platform/review/:platformReviewId
     // @access  Consumer
     static getPlatformReviewDetails = expressAsyncHandler(async (req, res) => {
-        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(platformReview)
     })
 
     // @desc    Update platform review
-    // @route   PUT /api/platform/:platformId/review/:platformReviewId
+    // @route   PUT /api/platform/review/:platformReviewId
     // @access  Consumer
     static updatePlatformReviewDetails = expressAsyncHandler(async (req, res) => {
-        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformReviewId)
         const platformReviewData = UtilityService.getUpdateValues(['comment', 'rating'], platformReview, req.body)
         const updatedPlatformReview = await DBService.updateData(TableNames.PLATFORM_REVIEW, platformReviewData, platformReview.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(updatedPlatformReview)
     })
 
     // @desc    Delete a Platform Review
-    // @route   DELETE /api/platform/:platformId/review/:platformReviewId
+    // @route   DELETE /api/platform/review/:platformReviewId
     // @access  Consumer
     static deletePlatformReview = expressAsyncHandler(async (req, res) => {
-        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformId, req.params.platformReviewId)
+        const platformReview = await PlatformReviewService.getUserPlatformReview(req.user.userId, req.params.platformReviewId)
         const deletedPlatformReview = await DBService.deleteData(TableNames.PLATFORM_REVIEW, platformReview.platformReviewId)
         res.status(StatusCode.SUCCESSFUL).json(deletedPlatformReview)
     })
