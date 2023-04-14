@@ -1,4 +1,4 @@
-import { TableNames } from '../models/enumConstants.js'
+import { PlatformStatus, TableNames } from '../models/enumConstants.js'
 import { DBService } from './DBService.js'
 
 export class PlatformService {
@@ -24,6 +24,17 @@ export class PlatformService {
             throw Error(`No platform with platformId ${platformId} exists for userId ${userId}.`)
         }
         return platforms[0]
+    }
+
+    static async checkUserPlatformDelivery(userId, platformId) {
+        const platform = await PlatformService.getUserPlatform(userId, platformId)
+        if (platform.platformStatus == PlatformStatus.DELIVERY) {
+            throw Error(`Platform is under service`)
+        }
+        if (platform.platformStatus == PlatformStatus.LIST_ITEMS) {
+            throw Error(`Platform doesn't support delivery`)
+        }
+        return platform
     }
 }
 

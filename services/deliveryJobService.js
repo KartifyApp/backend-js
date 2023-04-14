@@ -30,7 +30,7 @@ export class DeliveryJobService {
     static async getUserDeliveryJob(user, deliveryJobId) {
         if (user.userType == UserType.PROVIDER) {
             const deliveryJob = await DeliveryJobService.getDeliveryJobById(deliveryJobId)
-            await PlatformService.getUserPlatform(user.userId, deliveryJob.platformId)
+            await PlatformService.checkUserPlatformDelivery(user.userId, deliveryJob.platformId)
             return deliveryJob
         } else {
             const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId: user.userId, deliveryJobId })

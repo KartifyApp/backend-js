@@ -40,7 +40,7 @@ export class PlatformController {
 
     // @desc    Get a platform of a user
     // @route   GET /api/platform/:platformId
-    // @access  Provider and Consumer
+    // @access  Private
     static getPlatformDetails = expressAsyncHandler(async (req, res) => {
         const platform =
             req.user.userType == UserType.PROVIDER

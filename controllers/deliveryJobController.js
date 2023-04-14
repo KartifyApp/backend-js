@@ -7,13 +7,13 @@ import { UtilityService } from '../services/utilityService.js'
 
 export class DeliveryJobController {
     // @desc    Get delivery jobs of a platform
-    // @route   GET /api/user/delivery-job
+    // @route   GET /api/delivery-job
     // @access  Provider and Delivery
     static getAllDeliveryJobs = expressAsyncHandler(async (req, res) => {
         var deliveryJobData
         if (req.user.userType == UserType.PROVIDER) {
             deliveryJobData = UtilityService.getValues(['platformId'], [], req.query)
-            await PlatformService.getUserPlatform(req.user.userId, deliveryJobData.platformId)
+            await PlatformService.checkUserPlatformDelivery(req.user.userId, deliveryJobData.platformId)
         }
         const deliveryJobs = await DBService.getData(
             TableNames.DELIVERY_JOB,
@@ -23,7 +23,7 @@ export class DeliveryJobController {
     })
 
     // @desc    Create a delivery job
-    // @route   POST /api/user/delivery-job
+    // @route   POST /api/delivery-job
     // @access  Provider
     static createNewDeliveryJob = expressAsyncHandler(async (req, res) => {
         const deliveryJobData = UtilityService.getValues(['platformId', 'userId', 'salary'], [], req.body)
@@ -34,7 +34,7 @@ export class DeliveryJobController {
     })
 
     // @desc    Get a delivery job
-    // @route   GET /api/user/delivery-job/:deliveryJobId
+    // @route   GET /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static getDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
         const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
@@ -42,7 +42,7 @@ export class DeliveryJobController {
     })
 
     // @desc    Update delivery job
-    // @route   PUT /api/user/delivery-job/:deliveryJobId
+    // @route   PUT /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static updateDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
         const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
@@ -52,7 +52,7 @@ export class DeliveryJobController {
     })
 
     // @desc    Delete delivery job
-    // @route   DELETE /api/user/delivery-job/:deliveryJobId
+    // @route   DELETE /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static deleteDeliveryJob = expressAsyncHandler(async (req, res) => {
         const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
