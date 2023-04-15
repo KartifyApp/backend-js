@@ -1,4 +1,4 @@
-import { TableNames, UserType } from '../models/enumConstants.js'
+import { DeliveryStatus, OrderStatus, TableNames, UserType } from '../models/enumConstants.js'
 import { DBService } from './DBService.js'
 import { PlatformService } from './platformService.js'
 
@@ -19,25 +19,43 @@ export class DeliveryJobService {
         return true
     }
 
-    static async getDeliveryUser(userId) {
-        const user = await DBService.getData(TableNames.USER, { userId, userType: UserType.DELIVERY })
-        if (user.length === 0) {
-            throw Error(`No Delivery User with ID ${userId} exists.`)
+    static async getUserDeliveryJob(userId, deliveryJobId) {
+        const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId, deliveryJobId })
+        if (deliveryJob.length === 0) {
+            throw Error(`No delivery job with ID ${deliveryJobId} exists for User ID ${userId}.`)
         }
-        return user[0]
+        return deliveryJob[0]
     }
 
-    static async getUserDeliveryJob(user, deliveryJobId) {
+    static async getDeliveryJobByUser(user, deliveryJobId) {
+        const deliveryJob =
+            user.userType == UserType.DELIVERY
+                ? await DeliveryJobService.getUserDeliveryJob(user.userId, deliveryJobId)
+                : await DeliveryJobService.getDeliveryJobById(deliveryJobId)
         if (user.userType == UserType.PROVIDER) {
-            const deliveryJob = await DeliveryJobService.getDeliveryJobById(deliveryJobId)
-            await PlatformService.checkUserPlatformDelivery(user.userId, deliveryJob.platformId)
-            return deliveryJob
-        } else {
-            const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId: user.userId, deliveryJobId })
-            if (deliveryJob.length === 0) {
-                throw Error(`No delivery job with ID ${deliveryJobId} exists for User ID ${user.userId}.`)
+            await PlatformService.getUserPlatform(user.userId, deliveryJob.platformId)
+        }
+        return deliveryJob
+    }
+
+    static async getUniqueDeliveryJob(userId, platformId) {
+        const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId, platformId })
+        if (deliveryJob.length == 0) {
+            throw Error(`No delivery job for user ID ${userId} exists in platform ID ${platformId}.`)
+        }
+        return deliveryJob[0]
+    }
+
+    static async updateDeliveryJobStatus(userId, platformId, orderStatus) {
+        const deliveryJob = await DeliveryJobService.getUniqueDeliveryJob(userId, platformId)
+        if (orderStatus == OrderStatus.PICKUP || orderStatus == OrderStatus.TAKE) {
+            if (deliveryJob.deliveryStatus != DeliveryStatus.ACTIVE) {
+                throw Error(`Cannot update from delivery status ${deliveryJob.deliveryStatus}.`)
             }
-            return deliveryJob[0]
+            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.WORKING })
+        }
+        if (orderStatus == OrderStatus.SHIPPED || orderStatus == OrderStatus.RETURNED) {
+            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.ACTIVE })
         }
     }
 }

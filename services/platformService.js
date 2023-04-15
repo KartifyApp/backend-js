@@ -25,17 +25,6 @@ export class PlatformService {
         }
         return platforms[0]
     }
-
-    static async checkUserPlatformDelivery(userId, platformId) {
-        const platform = await PlatformService.getUserPlatform(userId, platformId)
-        if (platform.platformStatus == PlatformStatus.DELIVERY) {
-            throw Error(`Platform is under service`)
-        }
-        if (platform.platformStatus == PlatformStatus.LIST_ITEMS) {
-            throw Error(`Platform doesn't support delivery`)
-        }
-        return platform
-    }
 }
 
 export class PlatformReviewService {

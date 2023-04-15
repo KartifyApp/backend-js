@@ -10,15 +10,17 @@ export class DeliveryJobController {
     // @route   GET /api/delivery-job
     // @access  Provider and Delivery
     static getAllDeliveryJobs = expressAsyncHandler(async (req, res) => {
-        var deliveryJobData
-        if (req.user.userType == UserType.PROVIDER) {
-            deliveryJobData = UtilityService.getValues(['platformId'], [], req.query)
-            await PlatformService.checkUserPlatformDelivery(req.user.userId, deliveryJobData.platformId)
+        const deliveryJobData = {}
+        switch (req.user.userType) {
+            case UserType.PROVIDER:
+                deliveryJobData.platformId = UtilityService.getValues(['platformId'], [], req.query).platformId
+                await PlatformService.getUserPlatform(req.user.userId, deliveryJobData.platformId)
+                break
+            case UserType.DELIVERY:
+                deliveryJobData.userId = req.user.userId
+                break
         }
-        const deliveryJobs = await DBService.getData(
-            TableNames.DELIVERY_JOB,
-            req.user.userType == UserType.PROVIDER ? { platformId: deliveryJobData.platformId } : { userId: req.user.userId }
-        )
+        const deliveryJobs = await DBService.getData(TableNames.DELIVERY_JOB, deliveryJobData)
         res.status(StatusCode.SUCCESSFUL).json(deliveryJobs)
     })
 
@@ -28,7 +30,10 @@ export class DeliveryJobController {
     static createNewDeliveryJob = expressAsyncHandler(async (req, res) => {
         const deliveryJobData = UtilityService.getValues(['platformId', 'userId', 'salary'], [], req.body)
         await DeliveryJobService.uniqueDeliveryJob(deliveryJobData.userId, deliveryJobData.platformId)
-        await DeliveryJobService.getDeliveryUser(deliveryJobData.userId)
+        const deliveryUser = await DBService.getData(TableNames.USER, { userId: deliveryJobData.userId, userType: UserType.DELIVERY })
+        if (deliveryUser.length == 0) {
+            throw Error(`No delivery user with user ID ${deliveryJobData.userId} exists.`)
+        }
         const deliveryJob = await DBService.createData(TableNames.DELIVERY_JOB, deliveryJobData)
         res.status(StatusCode.SUCCESSFUL).json(deliveryJob)
     })
@@ -37,7 +42,7 @@ export class DeliveryJobController {
     // @route   GET /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static getDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
+        const deliveryJob = await DeliveryJobService.getDeliveryJobByUser(req.user, req.params.deliveryJobId)
         res.status(StatusCode.SUCCESSFUL).json(deliveryJob)
     })
 
@@ -45,7 +50,7 @@ export class DeliveryJobController {
     // @route   PUT /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static updateDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
+        const deliveryJob = await DeliveryJobService.getDeliveryJobByUser(req.user, req.params.deliveryJobId)
         const deliveryJobData = UtilityService.getUpdateValues([req.user.userType == UserType.PROVIDER ? 'salary' : 'deliveryStatus'], deliveryJob, req.body)
         const updatedDeliveryjob = await DBService.updateData(TableNames.DELIVERY_JOB, deliveryJobData, deliveryJob.deliveryJobId)
         res.status(StatusCode.SUCCESSFUL).json(updatedDeliveryjob)
@@ -55,7 +60,7 @@ export class DeliveryJobController {
     // @route   DELETE /api/delivery-job/:deliveryJobId
     // @access  Provider and Delivery
     static deleteDeliveryJob = expressAsyncHandler(async (req, res) => {
-        const deliveryJob = await DeliveryJobService.getUserDeliveryJob(req.user, req.params.deliveryJobId)
+        const deliveryJob = await DeliveryJobService.getDeliveryJobByUser(req.user, req.params.deliveryJobId)
         const deletedPlatform = await DBService.deleteData(TableNames.DELIVERY_JOB, deliveryJob.deliveryJobId)
         res.status(StatusCode.SUCCESSFUL).json(deletedPlatform)
     })
