@@ -43,7 +43,9 @@ export class DBService {
     static async getData(tableName, tableData) {
         try {
             const queries = StringService.entriesList(tableData)
-            const tableRows = await client.query(`SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.join(' AND ') : ''}`)
+            const tableRows = await client.query(
+                `SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.join(' AND ') : ''} ORDER BY ${PrimaryKeys[tableName]}`
+            )
             return tableRows.rows.map((row) => StringService.camelCaseObject(row))
         } catch (error) {
             throw Error(`Error fetching from ${tableName}.`)

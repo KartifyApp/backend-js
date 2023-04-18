@@ -80,7 +80,7 @@ export class OrderController {
     // @access  Private
     static getOrderProducts = expressAsyncHandler(async (req, res) => {
         const order = await OrderService.getOrderByUser(req.user, req.params.orderId)
-        const orderProducts = await DBService.getData(`${TableNames.PRODUCT} NATURAL JOIN ${TableNames.ORDER_PRODUCT}`, { orderId: order.orderId })
+        const orderProducts = await DBService.getData(TableNames.PRODUCT_JOIN_ORDER_PRODUCT, { orderId: order.orderId })
         res.status(StatusCode.SUCCESSFUL).json(orderProducts)
     })
 
@@ -89,30 +89,27 @@ export class OrderController {
     // @access  Provider and Delivery
     static updateOrderDetails = expressAsyncHandler(async (req, res) => {
         const order = await OrderService.getOrderByUser(req.user, req.params.orderId)
-        const deliveryJob = await OrderService.checkDeliveryUserOrder(req.user.userId, order)
         const state = {
             orderStatus: order.orderStatus,
-            platformStatus: order.platformStatus,
-            paymentMethod: order.paymentMethod,
-            deliveryStatus: deliveryJob.deliveryStatus
+            paymentStatus: order.paymentStatus,
+            paymentMethod: order.paymentMethod
         }
         const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerUpdate(state) : OrderService.deliveryUpdate(state)
-        if (state.deliveryStatus != updatedState.deliveryStatus) {
-            await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: updatedState.deliveryStatus }, deliveryJob.deliveryJobId)
+        if (req.user.userType == UserType.DELIVERY) {
+            await DeliveryJobService.updateDeliveryJobStatus(req.user.userId, order.platformId, order.orderStatus)
         }
-        delete updatedState.deliveryStatus
         const updatedOrder = await DBService.updateData(TableNames.ORDER, updatedState, order.orderId)
         res.status(StatusCode.SUCCESSFUL).json(updatedOrder)
     })
 
     // @desc    Cancel order by id
-    // @route   PUT /api/order/:orderId
+    // @route   PUT /api/order/:orderId/cancel
     // @access  Provider and Consumer
     static cancelOrder = expressAsyncHandler(async (req, res) => {
         const order = await OrderService.getOrderByUser(req.user, req.params.orderId)
         const state = {
             orderStatus: order.orderStatus,
-            platformStatus: order.platformStatus,
+            paymentStatus: order.paymentStatus,
             paymentMethod: order.paymentMethod
         }
         const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerCancel(state) : OrderService.consumerCancel(state)
@@ -121,13 +118,13 @@ export class OrderController {
     })
 
     // @desc    Pay order by id
-    // @route   PUT /api/order/:orderId
+    // @route   PUT /api/order/:orderId/pay
     // @access  Provider and Consumer
     static payOrder = expressAsyncHandler(async (req, res) => {
         const order = await OrderService.getOrderByUser(req.user, req.params.orderId)
         const state = {
             orderStatus: order.orderStatus,
-            platformStatus: order.platformStatus,
+            paymentStatus: order.paymentStatus,
             paymentMethod: order.paymentMethod
         }
         const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerPay(state) : OrderService.consumerPay(state)

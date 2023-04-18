@@ -26,8 +26,6 @@ app.use('/api/product', productRoutes)
 app.use('/api/order', orderRoutes)
 app.use('/api/delivery-job', deliveryJobRoutes)
 
-app.get('/api/config/paypal', (req, res) => res.send({ paypalClientId: process.env.PAYPAL_CLIENT_ID }))
-
 app.use(MiddlewareService.notFound)
 app.use(MiddlewareService.errorHandler)
 

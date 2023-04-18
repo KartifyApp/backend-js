@@ -12,7 +12,6 @@ export const SERVER_PORT = process.env.SERVER_PORT || 5000
 export const JWT_SECRET = process.env.JWT_SECRET
 export const JWT_EXPIRE_TIME = '30d'
 export const SALT_ROUNDS = 10
-export const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID
 
 export const TAX_PRICE_PERCENT = 5
 export const SHIPPING_PRICE = 50

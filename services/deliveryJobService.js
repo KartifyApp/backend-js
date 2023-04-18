@@ -55,10 +55,11 @@ export class DeliveryJobService {
             if (deliveryJob.deliveryStatus != DeliveryStatus.ACTIVE) {
                 throw Error(`Cannot update from delivery status ${deliveryJob.deliveryStatus}.`)
             }
-            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.WORKING })
+            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.WORKING }, deliveryJob.deliveryJobId)
         }
         if (orderStatus == OrderStatus.SHIPPED || orderStatus == OrderStatus.RETURNED) {
-            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.ACTIVE })
+            return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.ACTIVE }, deliveryJob.deliveryJobId)
         }
+        throw Error(`Cannot update delivery job status from order status ${orderStatus}.`)
     }
 }

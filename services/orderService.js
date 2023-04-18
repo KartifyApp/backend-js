@@ -54,14 +54,6 @@ export class OrderService {
         return orders
     }
 
-    static async checkDeliveryUserOrder(userId, order) {
-        const deliveryJob = await DBService.getData(TableNames.DELIVERY_JOB, { userId, platformId: order.platformId })
-        if (deliveryJob.length == 0) {
-            throw Error(`No delivery job for order ${order.orderId} exists for user ID ${userId}.`)
-        }
-        return deliveryJob
-    }
-
     static async getOrderByUser(user, orderId) {
         const order = await OrderService.getOrderById(orderId)
         switch (user.userType) {
@@ -91,73 +83,76 @@ export class OrderService {
         }
     }
 
-    static providerUpdate(order) {
-        switch (order.orderStatus) {
+    static providerUpdate(state) {
+        switch (state.orderStatus) {
             case OrderStatus.PLACED:
                 if (
-                    (order.paymentMethod == PaymentMethod.CASH_ON_DELIVERY && order.paymentStatus == PaymentStatus.PAYMENT_INIT) ||
-                    (order.paymentMethod == PaymentMethod.ONLINE_TRANSACTION && order.paymentStatus == PaymentStatus.PAYMENT_CONFIRMED)
+                    (state.paymentMethod == PaymentMethod.CASH_ON_DELIVERY && state.paymentStatus == PaymentStatus.PAYMENT_INIT) ||
+                    (state.paymentMethod == PaymentMethod.ONLINE_TRANSACTION && state.paymentStatus == PaymentStatus.PAYMENT_CONFIRMED)
                 )
-                    return { ...order, orderStatus: OrderStatus.CONFIRMED }
-                throw Error(`Cannot confirm order with payment method ${order.paymentMethod} and payment status ${order.paymentStatus}.`)
+                    return { ...state, orderStatus: OrderStatus.CONFIRMED }
+                throw Error(`Cannot confirm order with payment method ${state.paymentMethod} and payment status ${state.paymentStatus}.`)
             case OrderStatus.CONFIRMED:
-                return { ...order, orderStatus: OrderStatus.PICKUP }
+                return { ...state, orderStatus: OrderStatus.PICKUP }
             default:
-                throw Error(`Provider cannot update from order status ${order.orderStatus}.`)
+                throw Error(`Provider cannot update from order status ${state.orderStatus}.`)
         }
     }
 
-    static deliveryUpdate(order) {
-        switch (order.orderStatus) {
+    static deliveryUpdate(state) {
+        switch (state.orderStatus) {
             case OrderStatus.PICKUP:
-                return { ...order, orderStatus: OrderStatus.SHIPPED }
+                return { ...state, orderStatus: OrderStatus.SHIPPED }
             case OrderStatus.SHIPPED:
-                return { ...order, orderStatus: OrderStatus.DELIVERED, paymentStatus: PaymentStatus.PAYMENT_CONFIRMED }
+                return { ...state, orderStatus: OrderStatus.DELIVERED, paymentStatus: PaymentStatus.PAYMENT_CONFIRMED }
             case OrderStatus.TAKE:
-                return { ...order, orderStatus: OrderStatus.RETURNED }
+                return { ...state, orderStatus: OrderStatus.RETURNED }
             case OrderStatus.RETURNED:
-                return OrderService.orderCancelUpdate(order)
+                return OrderService.orderCancelUpdate(state)
             default:
-                throw Error(`Cannot update from order status ${order.orderStatus}.`)
+                throw Error(`Cannot update from order status ${state.orderStatus}.`)
         }
     }
 
-    static providerCancel(order) {
-        switch (order.orderStatus) {
+    static providerCancel(state) {
+        switch (state.orderStatus) {
             case OrderStatus.PLACED:
-                return OrderService.orderCancelUpdate(order)
+                return OrderService.orderCancelUpdate(state)
             default:
-                throw Error(`Cannot update cancel order status ${order.orderStatus}.`)
+                throw Error(`Cannot cancel from order status ${state.orderStatus}.`)
         }
     }
 
-    static consumerCancel(order) {
-        switch (order.orderStatus) {
+    static consumerCancel(state) {
+        switch (state.orderStatus) {
+            case OrderStatus.PLACED:
             case OrderStatus.CONFIRMED:
             case OrderStatus.PICKUP:
-                return OrderService.orderCancelUpdate(order)
+                return OrderService.orderCancelUpdate(state)
             case OrderStatus.SHIPPED:
-                return { ...order, orderStatus: OrderStatus.RETURNED }
+                return { ...state, orderStatus: OrderStatus.RETURNED }
             case OrderStatus.DELIVERED:
-                return { ...order, orderStatus: OrderStatus.TAKE }
+                return { ...state, orderStatus: OrderStatus.TAKE }
+            default:
+                throw Error(`Cannot cancel from order status ${state.orderStatus}.`)
         }
     }
 
-    static providerPay(order) {
-        switch (order.paymentStatus) {
+    static providerPay(state) {
+        switch (state.paymentStatus) {
             case PaymentStatus.REFUND_PROCESSING:
-                return { ...order, paymentStatus: PaymentStatus.REFUND_CONFIRMED }
+                return { ...state, paymentStatus: PaymentStatus.REFUND_CONFIRMED, orderStatus: OrderStatus.CANCELLED }
             default:
-                throw Error(`Cannot pay from payment status ${order.paymentStatus}.`)
+                throw Error(`Cannot pay from payment status ${state.paymentStatus}.`)
         }
     }
 
-    static consumerPay(order) {
-        switch (order.paymentStatus) {
+    static consumerPay(state) {
+        switch (state.paymentStatus) {
             case PaymentStatus.PAYMENT_PROCESSING:
-                return { ...order, paymentStatus: PaymentStatus.PAYMENT_CONFIRMED }
+                return { ...state, paymentStatus: PaymentStatus.PAYMENT_CONFIRMED }
             default:
-                throw Error(`Cannot pay from payment status ${order.paymentStatus}.`)
+                throw Error(`Cannot pay from payment status ${state.paymentStatus}.`)
         }
     }
 }

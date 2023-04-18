@@ -56,7 +56,8 @@ export const TableNames = Object.freeze({
     PRODUCT_REVIEW: 'product_review',
     DELIVERY_JOB: 'delivery_job',
     ORDER: 'orders',
-    ORDER_PRODUCT: 'order_product'
+    ORDER_PRODUCT: 'order_product',
+    PRODUCT_JOIN_ORDER_PRODUCT: 'product NATURAL JOIN order_product'
 })
 
 export const AddressKeys = ['postOffice', 'pinCode', 'city', 'country', 'phoneNumber']
@@ -69,5 +70,6 @@ export const PrimaryKeys = Object.freeze({
     product_review: 'product_review_id',
     delivery_job: 'delivery_job_id',
     orders: 'order_id',
-    order_product: 'order_product_id'
+    order_product: 'order_product_id',
+    'product NATURAL JOIN order_product': 'product_id'
 })
