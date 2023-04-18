@@ -4,6 +4,7 @@ import { PlatformStatus, StatusCode, TableNames, UserType } from '../models/enum
 import { PlatformReviewService, PlatformService } from '../services/platformService.js'
 import { UtilityService } from '../services/utilityService.js'
 import { DBService } from '../services/DBService.js'
+import { DeliveryJobService } from '../services/deliveryJobService.js'
 
 export class PlatformController {
     // @desc    Get all platforms of a user
@@ -13,7 +14,13 @@ export class PlatformController {
         const platforms =
             req.user.userType == UserType.PROVIDER
                 ? await DBService.getData(TableNames.PLATFORM, { userId: req.user.userId })
-                : await DBService.getData(TableNames.PLATFORM, {})
+                : req.user.userType == UserType.CONSUMER
+                ? await DBService.getData(TableNames.PLATFORM, {})
+                : await Promise.all(
+                      (
+                          await DBService.getData(TableNames.DELIVERY_JOB, { userId: req.user.userId })
+                      ).map(async (deliveryJob) => await PlatformService.getPlatformById(deliveryJob.platformId))
+                  )
         res.status(StatusCode.SUCCESSFUL).json(platforms)
     })
 
@@ -46,6 +53,9 @@ export class PlatformController {
             req.user.userType == UserType.PROVIDER
                 ? await PlatformService.getUserPlatform(req.user.userId, req.params.platformId)
                 : await PlatformService.getPlatformById(req.params.platformId)
+        if (req.user.userType == UserType.DELIVERY) {
+            await DeliveryJobService.getUniqueDeliveryJob(req.user.userId, req.params.platformId)
+        }
         res.status(StatusCode.SUCCESSFUL).json(platform)
     })
 

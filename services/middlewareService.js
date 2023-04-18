@@ -49,15 +49,6 @@ export class MiddlewareService {
         }
     })
 
-    static providerAndConsumerUser = expressAsyncHandler(async (req, res, next) => {
-        if (req.user && (req.user.userType == UserType.PROVIDER || req.user.userType == UserType.CONSUMER)) {
-            next()
-        } else {
-            res.status(StatusCode.UNAUTHORIZED)
-            throw Error(`Not authorized as Provider or Consumer.`)
-        }
-    })
-
     static deliveryUser = expressAsyncHandler(async (req, res, next) => {
         if (req.user && req.user.userType === UserType.DELIVERY) {
             next()
@@ -73,6 +64,24 @@ export class MiddlewareService {
         } else {
             res.status(StatusCode.UNAUTHORIZED)
             throw Error(`Not authorized as Provider or Delivery.`)
+        }
+    })
+
+    static providerAndConsumerUser = expressAsyncHandler(async (req, res, next) => {
+        if (req.user && (req.user.userType == UserType.PROVIDER || req.user.userType == UserType.CONSUMER)) {
+            next()
+        } else {
+            res.status(StatusCode.UNAUTHORIZED)
+            throw Error(`Not authorized as Provider or Consumer.`)
+        }
+    })
+
+    static consumerAndDeliveryUser = expressAsyncHandler(async (req, res, next) => {
+        if (req.user && (req.user.userType == UserType.DELIVERY || req.user.userType == UserType.CONSUMER)) {
+            next()
+        } else {
+            res.status(StatusCode.UNAUTHORIZED)
+            throw Error(`Not authorized as Consumer or Delivery.`)
         }
     })
 

@@ -1,12 +1,13 @@
 import { Router } from 'express'
 import { PlatformController, PlatformReviewController } from '../controllers/platformController.js'
 import { MiddlewareService } from '../services/middlewareService.js'
+import { OrderController } from '../controllers/orderController.js'
 
 const router = Router()
 
 router
     .route('/')
-    .get(MiddlewareService.authorize, MiddlewareService.providerAndConsumerUser, PlatformController.getAllPlatforms)
+    .get(MiddlewareService.authorize, PlatformController.getAllPlatforms)
     .post(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.createNewPlatform)
 
 router
@@ -19,6 +20,11 @@ router
     .get(MiddlewareService.authorize, PlatformController.getPlatformDetails)
     .put(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.updatePlatformDetails)
     .delete(MiddlewareService.authorize, MiddlewareService.providerUser, PlatformController.deletePlatform)
+
+router
+    .route('/:platformId/order')
+    .get(MiddlewareService.authorize, MiddlewareService.providerAndDeliveryUser, OrderController.getAllPlatformOrders)
+    .post(MiddlewareService.authorize, MiddlewareService.consumerUser, OrderController.createNewOrder)
 
 router
     .route('/review/:platformReviewId')

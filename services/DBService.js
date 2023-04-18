@@ -46,7 +46,6 @@ export class DBService {
             const tableRows = await client.query(`SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.join(' AND ') : ''}`)
             return tableRows.rows.map((row) => StringService.camelCaseObject(row))
         } catch (error) {
-            console.log(`SELECT * FROM ${tableName} WHERE ${StringService.entriesList(tableData, ' AND ')}`)
             throw Error(`Error fetching from ${tableName}.`)
         }
     }

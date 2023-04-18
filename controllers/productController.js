@@ -5,16 +5,19 @@ import { UtilityService } from '../services/utilityService.js'
 import { PlatformService } from '../services/platformService.js'
 import { ProductReviewService, ProductService } from '../services/productService.js'
 import { DBService } from '../services/DBService.js'
+import { DeliveryJobService } from '../services/deliveryJobService.js'
 
 export class ProductController {
     // @desc    Get all products of a platform
     // @route   GET /api/product/
-    // @access  Provider and Consumer
+    // @access  Private
     static getAllProducts = expressAsyncHandler(async (req, res) => {
         const productData = UtilityService.getValues(['platformId'], [], req.query)
         if (req.query.category) productData.category = req.query.category
         if (req.user.userType == UserType.PROVIDER) {
             await PlatformService.getUserPlatform(req.user.userId, productData.platformId)
+        } else if (req.user.userType == UserType.DELIVERY) {
+            await DeliveryJobService.getUniqueDeliveryJob(req.user.userId, productData.platformId)
         }
         const products = await DBService.getData(TableNames.PRODUCT, productData)
         res.status(StatusCode.SUCCESSFUL).json(products)
@@ -42,12 +45,15 @@ export class ProductController {
 
     // @desc    Get a product
     // @route   GET /api/product/:productId
-    // @access  Provider and Consumer
+    // @access  Private
     static getProductDetails = expressAsyncHandler(async (req, res) => {
         const product =
             req.user.userType == UserType.PROVIDER
                 ? await ProductService.getUserProduct(req.user.userId, req.params.productId)
                 : await ProductService.getProductById(req.params.productId)
+        if (req.user.userType == UserType.DELIVERY) {
+            await DeliveryJobService.getUniqueDeliveryJob(req.user.userId, product.platformId)
+        }
         res.status(StatusCode.SUCCESSFUL).json(product)
     })
 
