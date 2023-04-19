@@ -1,3 +1,8 @@
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+
+import { JWT_EXPIRE_TIME, JWT_SECRET, SALT_ROUNDS } from '../constants.js'
+
 export class UtilityService {
     static getValues(hardKeys, softKeys, obj) {
         var objCreated = {}
@@ -24,28 +29,30 @@ export class UtilityService {
         return updateObj
     }
 
-    static camelCaseObject(obj) {
-        var newObj = {}
-        Object.entries(obj).forEach(([key, val]) => {
-            newObj[UtilityService.camelCase(key)] = val
+    static generateToken(userId) {
+        return jwt.sign({ userId }, JWT_SECRET, {
+            expiresIn: JWT_EXPIRE_TIME
         })
-        return newObj
     }
 
-    static snakeCase(str) {
-        return str.replace(/[A-Z]/g, (chr) => `_${chr.toLowerCase()}`)
+    static decodeToken(token) {
+        return jwt.verify(token, JWT_SECRET)
     }
 
-    static camelCase(str) {
-        return str.replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
+    static async hash(password) {
+        try {
+            const salt = await bcrypt.genSalt(SALT_ROUNDS)
+            return await bcrypt.hash(password, salt)
+        } catch (error) {
+            throw Error(`Password hashing failed.`)
+        }
     }
 
-    static whereClause(obj) {
-        return obj
-            ? 'WHERE ' +
-                  Object.entries(obj)
-                      .map(([key, value]) => `${UtilityService.snakeCase(key)} = '${value}'`)
-                      .join(' AND ')
-            : null
+    static async compare(password, hashedPassword) {
+        try {
+            return await bcrypt.compare(password, hashedPassword)
+        } catch (error) {
+            throw Error(`Error comparing passwords.`)
+        }
     }
 }

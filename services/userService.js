@@ -1,6 +1,6 @@
-import { BcryptClient } from '../clients/externalClient.js'
 import { TableNames } from '../models/enumConstants.js'
 import { DBService } from './DBService.js'
+import { UtilityService } from './utilityService.js'
 
 export class UserService {
     static async getUserById(userId) {
@@ -25,7 +25,7 @@ export class UserService {
         if (users.length === 0) {
             throw Error(`Invalid username ${username}`)
         }
-        if (!(await BcryptClient.compare(password, users[0].password))) {
+        if (!(await UtilityService.compare(password, users[0].password))) {
             throw Error(`Invalid password for username ${username}`)
         }
         delete users[0].password

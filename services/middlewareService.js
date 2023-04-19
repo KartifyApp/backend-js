@@ -1,14 +1,14 @@
 import expressAsyncHandler from 'express-async-handler'
 
 import { StatusCode, UserType } from '../models/enumConstants.js'
-import { TokenClient } from '../clients/externalClient.js'
 import { UserService } from './userService.js'
+import { UtilityService } from './utilityService.js'
 
 export class MiddlewareService {
     static authorize = expressAsyncHandler(async (req, res, next) => {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
-                const decoded = TokenClient.decodeToken(req.headers.authorization.split(' ')[1])
+                const decoded = UtilityService.decodeToken(req.headers.authorization.split(' ')[1])
 
                 req.user = await UserService.getUserById(decoded.userId)
                 next()

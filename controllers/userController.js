@@ -2,7 +2,6 @@ import expressAsyncHandler from 'express-async-handler'
 
 import { StatusCode, TableNames, UserType } from '../models/enumConstants.js'
 import { UtilityService } from '../services/utilityService.js'
-import { BcryptClient, TokenClient } from '../clients/externalClient.js'
 import { UserService } from '../services/userService.js'
 import { DBService } from '../services/DBService.js'
 
@@ -19,7 +18,7 @@ export class UserController {
             ],
             req.body
         )
-        userData.password = await BcryptClient.hash(userData.password)
+        userData.password = await UtilityService.hash(userData.password)
         await UserService.uniqueUserUsername(userData.username)
         const user = await DBService.createData(TableNames.USER, userData)
         delete user.password
@@ -41,7 +40,7 @@ export class UserController {
         const user = await UserService.getUserById(req.user.userId)
         const userData = UtilityService.getUpdateValues(['name', 'email', 'username', 'userAddress'], user, req.body)
         if (req.body.password) {
-            userData.password = await BcryptClient.hash(req.body.password)
+            userData.password = await UtilityService.hash(req.body.password)
         }
         if (userData.username != user.username) {
             await UserService.uniqueUserUsername(userData.username)
@@ -59,7 +58,7 @@ export class UserController {
         const user = await UserService.checkPassword(userData.username, userData.password)
         res.status(StatusCode.SUCCESSFUL).json({
             ...user,
-            token: TokenClient.generateToken(user.userId)
+            token: UtilityService.generateToken(user.userId)
         })
     })
 
