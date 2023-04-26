@@ -18,24 +18,10 @@ export class StringService {
         return newObj
     }
 
-    static keysList(obj) {
-        return Object.keys(obj)
-            .sort()
-            .map((key) => StringService.snakeCase(key))
-            .join(', ')
-    }
-
-    static valuesList(obj) {
-        return Object.keys(obj)
-            .sort()
-            .map((key) => `'${typeof obj[key] == 'object' ? JSON.stringify(obj[key]) : obj[key]}'`)
-            .join(', ')
-    }
-
     static entriesList(obj) {
         return Object.keys(obj)
             .sort()
-            .map((key) => `${StringService.snakeCase(key)} = '${typeof obj[key] == 'object' ? JSON.stringify(obj[key]) : obj[key]}'`)
+            .map((key) => [StringService.snakeCase(key), typeof obj[key] == 'object' ? JSON.stringify(obj[key]) : obj[key]])
     }
 }
 
@@ -44,7 +30,9 @@ export class DBService {
         try {
             const queries = StringService.entriesList(tableData)
             const tableRows = await client.query(
-                `SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.join(' AND ') : ''} ORDER BY ${PrimaryKeys[tableName]}`
+                `SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.map((query, i) => `${query[0]} =  $${i + 1}`).join(' AND ') : ''}
+                ORDER BY $${queries.length + 1}`,
+                [...queries.map((query) => query[1]), PrimaryKeys[tableName]]
             )
             return tableRows.rows.map((row) => StringService.camelCaseObject(row))
         } catch (error) {
@@ -54,8 +42,11 @@ export class DBService {
 
     static async createData(tableName, tableData) {
         try {
+            const createList = StringService.entriesList(tableData)
             const createdRow = await client.query(
-                `INSERT INTO ${tableName} (${StringService.keysList(tableData)}) VALUES (${StringService.valuesList(tableData)}) RETURNING *`
+                `INSERT INTO ${tableName} (${createList.map((createElement) => createElement[0]).join(', ')}) 
+                VALUES (${createList.map((_, i) => `$${i + 1}`).join(', ')}) RETURNING *`,
+                createList.map((createElement) => createElement[1])
             )
             return createdRow.rowCount > 0 ? StringService.camelCaseObject(createdRow.rows[0]) : null
         } catch (error) {
@@ -68,7 +59,9 @@ export class DBService {
             const updateList = StringService.entriesList(tableData)
             if (updateList.length === 0) throw Error()
             const updatedRow = await client.query(
-                `UPDATE ${tableName} SET ${updateList.join(', ')} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`
+                `UPDATE ${tableName} SET ${updateList.map((updateElement, i) => `${updateElement[0]} = $${i + 1}`).join(', ')} 
+                WHERE ${PrimaryKeys[tableName]} = $${updateList.length + 1} RETURNING *`,
+                [...updateList.map((updateElement) => updateElement[1]), primaryKey]
             )
             return updatedRow.rowCount > 0 ? StringService.camelCaseObject(updatedRow.rows[0]) : null
         } catch (error) {
@@ -78,7 +71,7 @@ export class DBService {
 
     static async deleteData(tableName, primaryKey) {
         try {
-            const deletedRow = await client.query(`DELETE FROM ${tableName} WHERE ${PrimaryKeys[tableName]} = '${primaryKey}' RETURNING *`)
+            const deletedRow = await client.query(`DELETE FROM ${tableName} WHERE ${PrimaryKeys[tableName]} = $1 RETURNING *`, [primaryKey])
             return deletedRow.rowCount > 0 ? StringService.camelCaseObject(deletedRow.rows[0]) : null
         } catch (error) {
             throw Error(`Error deleting from ${tableName}.`)
