@@ -2,12 +2,13 @@ import express from 'express'
 import cors from 'cors'
 
 import { SERVER_PORT } from './constants.js'
+import { MiddlewareService } from './services/middlewareService.js'
 import userRoutes from './routes/userRoutes.js'
 import platformRoutes from './routes/platformRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import deliveryJobRoutes from './routes/deliveryJobRoutes.js'
-import { MiddlewareService } from './services/middlewareService.js'
+import uploadRoutes from './routes/uploadRoutes.js'
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/api/platform', platformRoutes)
 app.use('/api/product', productRoutes)
 app.use('/api/order', orderRoutes)
 app.use('/api/delivery-job', deliveryJobRoutes)
+app.use('/api/upload', uploadRoutes)
 
 app.use(MiddlewareService.notFound)
 app.use(MiddlewareService.errorHandler)

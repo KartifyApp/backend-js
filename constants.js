@@ -15,3 +15,4 @@ export const SALT_ROUNDS = 10
 
 export const TAX_PRICE_PERCENT = 5
 export const SHIPPING_PRICE = 50
+export const UPLOAD_DIR = '/uploads'
