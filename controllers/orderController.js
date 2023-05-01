@@ -94,11 +94,8 @@ export class OrderController {
             paymentStatus: order.paymentStatus,
             paymentMethod: order.paymentMethod
         }
-        const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerUpdate(state) : OrderService.deliveryUpdate(state)
-        if (req.user.userType == UserType.DELIVERY) {
-            await DeliveryJobService.updateDeliveryJobStatus(req.user.userId, order.platformId, order.orderStatus)
-        }
-        const updatedOrder = await DBService.updateData(TableNames.ORDER, updatedState, order.orderId)
+        const updatedState = req.user.userType == UserType.DELIVERY ? OrderService.deliveryUpdate(state) : OrderService.providerUpdate(state)
+        const updatedOrder = await OrderService.callbackOrderUpdate(req.user, order, updatedState)
         res.status(StatusCode.SUCCESSFUL).json(updatedOrder)
     })
 
@@ -113,7 +110,7 @@ export class OrderController {
             paymentMethod: order.paymentMethod
         }
         const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerCancel(state) : OrderService.consumerCancel(state)
-        const updatedOrder = await DBService.updateData(TableNames.ORDER, updatedState, order.orderId)
+        const updatedOrder = await OrderService.callbackOrderUpdate(req.user, order, updatedState)
         res.status(StatusCode.SUCCESSFUL).json(updatedOrder)
     })
 
@@ -128,7 +125,7 @@ export class OrderController {
             paymentMethod: order.paymentMethod
         }
         const updatedState = req.user.userType == UserType.PROVIDER ? OrderService.providerPay(state) : OrderService.consumerPay(state)
-        const updatedOrder = await DBService.updateData(TableNames.ORDER, updatedState, order.orderId)
+        const updatedOrder = await OrderService.callbackOrderUpdate(req.user, order, updatedState)
         res.status(StatusCode.SUCCESSFUL).json(updatedOrder)
     })
 }

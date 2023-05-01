@@ -31,8 +31,8 @@ export class DBService {
             const queries = StringService.entriesList(tableData)
             const tableRows = await client.query(
                 `SELECT * FROM ${tableName} ${queries.length > 0 ? 'WHERE ' + queries.map((query, i) => `${query[0]} =  $${i + 1}`).join(' AND ') : ''}
-                ORDER BY $${queries.length + 1}`,
-                [...queries.map((query) => query[1]), PrimaryKeys[tableName]]
+                ORDER BY ${PrimaryKeys[tableName]}`,
+                queries.map((query) => query[1])
             )
             return tableRows.rows.map((row) => StringService.camelCaseObject(row))
         } catch (error) {

@@ -1,4 +1,4 @@
-import { TableNames } from '../models/enumConstants.js'
+import { OrderStatus, TableNames } from '../models/enumConstants.js'
 import { DBService } from './DBService.js'
 import { PlatformService } from './platformService.js'
 
@@ -22,6 +22,28 @@ export class ProductService {
             throw Error(`Platform does not have ${category} category.`)
         }
         return true
+    }
+
+    static async updateProductStockCount(orderId, orderStatus) {
+        const orderProducts = await DBService.getData(TableNames.PRODUCT_JOIN_ORDER_PRODUCT, { orderId })
+        if (orderStatus == OrderStatus.CONFIRMED || orderStatus == OrderStatus.CANCELLED) {
+            return await Promise.all(
+                orderProducts.map(
+                    async (orderProduct) =>
+                        await DBService.updateData(
+                            TableNames.PRODUCT,
+                            {
+                                stockCount:
+                                    orderStatus == OrderStatus.CONFIRMED
+                                        ? orderProduct.stockCount - orderProduct.quantity
+                                        : orderProduct.stockCount + orderProduct.quantity
+                            },
+                            orderProduct.productId
+                        )
+                )
+            )
+        }
+        return null
     }
 }
 

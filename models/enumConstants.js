@@ -71,5 +71,5 @@ export const PrimaryKeys = Object.freeze({
     delivery_job: 'delivery_job_id',
     orders: 'order_id',
     order_product: 'order_product_id',
-    'product NATURAL JOIN order_product': 'product_id'
+    'product NATURAL JOIN order_product': 'order_product_id'
 })

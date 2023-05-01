@@ -31,6 +31,20 @@ export class OrderService {
         }
     }
 
+    static async callbackOrderUpdate(user, order, updatedState) {
+        try {
+            await DBService.beginTransaction()
+            user.userType == UserType.DELIVERY && (await DeliveryJobService.updateDeliveryJobStatus(user.userId, order.platformId, order.orderStatus))
+            await ProductService.updateProductStockCount(order.orderId, updatedState.orderStatus)
+            const updatedOrder = await DBService.updateData(TableNames.ORDER, updatedState, order.orderId)
+            await DBService.commitTransaction()
+            return updatedOrder
+        } catch (error) {
+            await DBService.rollBackTransaction()
+            throw Error(error.message)
+        }
+    }
+
     static async getOrderPrice(cartProducts) {
         const products = await Promise.all(
             Object.entries(cartProducts).map(async ([productId, quantity]) => ({

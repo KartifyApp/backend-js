@@ -1,5 +1,5 @@
 import expressAsyncHandler from 'express-async-handler'
-import { StatusCode, TableNames, UserType } from '../models/enumConstants.js'
+import { DeliveryStatus, StatusCode, TableNames, UserType } from '../models/enumConstants.js'
 import { DBService } from '../services/DBService.js'
 import { DeliveryJobService } from '../services/deliveryJobService.js'
 import { PlatformService } from '../services/platformService.js'
@@ -52,6 +52,14 @@ export class DeliveryJobController {
     static updateDeliveryJobDetails = expressAsyncHandler(async (req, res) => {
         const deliveryJob = await DeliveryJobService.getDeliveryJobByUser(req.user, req.params.deliveryJobId)
         const deliveryJobData = UtilityService.getUpdateValues([req.user.userType == UserType.PROVIDER ? 'salary' : 'deliveryStatus'], deliveryJob, req.body)
+        if (deliveryJobData.deliveryStatus) {
+            if (deliveryJob.deliveryStatus == DeliveryStatus.WORKING) {
+                throw Error(`Cannot update from state WORKING.`)
+            }
+            if (deliveryJobData.deliveryStatus == DeliveryStatus.WORKING) {
+                throw Error(`Cannot update to state WORKING.`)
+            }
+        }
         const updatedDeliveryjob = await DBService.updateData(TableNames.DELIVERY_JOB, deliveryJobData, deliveryJob.deliveryJobId)
         res.status(StatusCode.SUCCESSFUL).json(updatedDeliveryjob)
     })

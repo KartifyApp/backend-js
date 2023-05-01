@@ -60,6 +60,6 @@ export class DeliveryJobService {
         if (orderStatus == OrderStatus.SHIPPED || orderStatus == OrderStatus.RETURNED) {
             return await DBService.updateData(TableNames.DELIVERY_JOB, { deliveryStatus: DeliveryStatus.ACTIVE }, deliveryJob.deliveryJobId)
         }
-        throw Error(`Cannot update delivery job status from order status ${orderStatus}.`)
+        return null
     }
 }
